@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Menú Principal -->
+    <menuitem id="menu_medical_root"
+              name="Gestión Médica"
+              web_icon="medical_appointments,static/description/icon.png"
+              sequence="50"/>
+
+    <!-- Menú Turnos -->
+    <menuitem id="menu_medical_appointments"
+              name="Turnos"
+              parent="menu_medical_root"
+              sequence="10"/>
+    
+    <menuitem id="menu_medical_appointment_all"
+              name="Todos los Turnos"
+              parent="menu_medical_appointments"
+              action="action_medical_appointment"
+              sequence="10"/>
+    
+    <menuitem id="menu_medical_appointment_today"
+              name="Turnos de Hoy"
+              parent="menu_medical_appointments"
+              action="action_medical_appointment"
+              sequence="20"/>
+
+    <!-- Menú Pacientes -->
+    <menuitem id="menu_medical_patients"
+              name="Pacientes"
+              parent="menu_medical_root"
+              sequence="20"/>
+    
+    <menuitem id="menu_medical_patient_person"
+              name="Personas"
+              parent="menu_medical_patients"
+              action="action_medical_patient"
+              sequence="10"/>
+    
+    <menuitem id="menu_medical_patient_animal"
+              name="Animales"
+              parent="menu_medical_patients"
+              action="action_medical_patient_animal"
+              sequence="20"/>
+
+    <!-- Menú Historias Clínicas -->
+    <menuitem id="menu_medical_clinical_history"
+              name="Historias Clínicas"
+              parent="menu_medical_root"
+              action="action_medical_clinical_history"
+              sequence="30"/>
+
+    <!-- Menú Médicos -->
+    <menuitem id="menu_medical_doctors"
+              name="Médicos"
+              parent="menu_medical_root"
+              sequence="40"/>
+    
+    <menuitem id="menu_medical_doctor_all"
+              name="Médicos"
+              parent="menu_medical_doctors"
+              action="action_medical_doctor"
+              sequence="10"/>
+    
+    <menuitem id="menu_medical_schedule_all"
+              name="Agendas"
+              parent="menu_medical_doctors"
+              action="action_medical_schedule"
+              sequence="20"/>
+    
+    <menuitem id="menu_medical_schedule_block"
+              name="Bloqueos"
+              parent="menu_medical_doctors"
+              action="action_medical_schedule_block"
+              sequence="30"/>
+
+    <!-- Menú Configuración -->
+    <menuitem id="menu_medical_config"
+              name="Configuración"
+              parent="menu_medical_root"
+              sequence="100"
+              groups="group_medical_manager"/>
+    
+    <menuitem id="menu_medical_specialty"
+              name="Especialidades"
+              parent="menu_medical_config"
+              action="action_medical_specialty"
+              sequence="10"/>
+    
+    <menuitem id="menu_medical_practice"
+              name="Prácticas / Atenciones"
+              parent="menu_medical_config"
+              action="action_medical_practice"
+              sequence="20"/>
+
+</odoo>

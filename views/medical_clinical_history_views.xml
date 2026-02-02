@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista List -->
+    <record id="view_medical_clinical_history_tree" model="ir.ui.view">
+        <field name="name">medical.clinical.history.tree</field>
+        <field name="model">medical.clinical.history</field>
+        <field name="arch" type="xml">
+            <list string="Historia Clínica" decoration-success="state=='done'">
+                <field name="date"/>
+                <field name="specialty_id"/>
+                <field name="patient_name"/>
+                <field name="doctor_id"/>
+                <field name="diagnosis"/>
+                <field name="state" widget="badge" 
+                       decoration-info="state=='draft'" 
+                       decoration-success="state=='done'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista Form -->
+    <record id="view_medical_clinical_history_form" model="ir.ui.view">
+        <field name="name">medical.clinical.history.form</field>
+        <field name="model">medical.clinical.history</field>
+        <field name="arch" type="xml">
+            <form string="Historia Clínica">
+                <header>
+                    <button name="action_done" string="Finalizar" type="object" 
+                            class="oe_highlight" invisible="state != 'draft'"/>
+                    <button name="action_view_attachments" string="Ver Archivos" type="object" 
+                            icon="fa-paperclip" invisible="attachment_count == 0"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_attachments" 
+                                type="object" 
+                                class="oe_stat_button" 
+                                icon="fa-paperclip">
+                            <field name="attachment_count" widget="statinfo" string="Archivos"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="display_name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Información de la Consulta">
+                            <field name="date"/>
+                            <field name="appointment_id" readonly="1"/>
+                            <field name="specialty_id" readonly="1"/>
+                            <field name="practice_id" readonly="1"/>
+                            <field name="doctor_id" readonly="1"/>
+                        </group>
+                        <group string="Paciente">
+                            <field name="patient_type" invisible="1"/>
+                            <field name="patient_id" readonly="1" invisible="patient_type != 'person'"/>
+                            <field name="patient_animal_id" readonly="1" invisible="patient_type != 'animal'"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Consulta" name="consultation">
+                            <group>
+                                <field name="reason" string="Motivo de Consulta" readonly="1"/>
+                            </group>
+                            <group string="Síntomas">
+                                <field name="symptoms" nolabel="1" placeholder="Describa los síntomas reportados..."/>
+                            </group>
+                            <group string="Examen Físico">
+                                <field name="physical_exam" nolabel="1" placeholder="Describa los hallazgos del examen físico..."/>
+                            </group>
+                        </page>
+                        <page string="Diagnóstico y Tratamiento" name="diagnosis_treatment">
+                            <group string="Diagnóstico">
+                                <field name="diagnosis" nolabel="1" placeholder="Ingrese el diagnóstico médico..."/>
+                            </group>
+                            <group string="Tratamiento">
+                                <field name="treatment" nolabel="1" placeholder="Describa el tratamiento prescrito..."/>
+                            </group>
+                            <group string="Observaciones">
+                                <field name="observations" nolabel="1" placeholder="Observaciones adicionales..."/>
+                            </group>
+                        </page>
+                        <page string="Signos Vitales" name="vital_signs">
+                            <group>
+                                <group string="Básicos">
+                                    <field name="temperature"/>
+                                    <field name="heart_rate"/>
+                                    <field name="respiratory_rate"/>
+                                </group>
+                                <group string="Mediciones">
+                                    <field name="blood_pressure_systolic"/>
+                                    <field name="blood_pressure_diastolic"/>
+                                    <field name="weight"/>
+                                    <field name="height"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Archivos Adjuntos" name="attachments">
+                            <field name="attachment_ids" widget="many2many_binary" nolabel="1"/>
+                            <group>
+                                <p class="text-muted">
+                                    Adjunte estudios, radiografías, análisis de laboratorio, etc.
+                                </p>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista Search -->
+    <record id="view_medical_clinical_history_search" model="ir.ui.view">
+        <field name="name">medical.clinical.history.search</field>
+        <field name="model">medical.clinical.history</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Historias Clínicas">
+                <field name="patient_name"/>
+                <field name="doctor_id"/>
+                <field name="specialty_id"/>
+                <field name="practice_id"/>
+                <field name="diagnosis"/>
+                <field name="patient_id"/>
+                <field name="patient_animal_id"/>
+                <separator/>
+                <filter string="Borradores" name="filter_draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Finalizadas" name="filter_done" domain="[('state', '=', 'done')]"/>
+                <separator/>
+                <filter string="Hoy" name="filter_today" 
+                        domain="[('date', '&gt;=', datetime.datetime.combine(context_today(), datetime.time(0,0,0))),
+                                 ('date', '&lt;=', datetime.datetime.combine(context_today(), datetime.time(23,59,59)))]"/>
+                <filter string="Esta Semana" name="filter_week" 
+                        domain="[('date', '&gt;=', (context_today() - datetime.timedelta(days=context_today().weekday())).strftime('%Y-%m-%d')),
+                                 ('date', '&lt;', (context_today() + datetime.timedelta(days=7-context_today().weekday())).strftime('%Y-%m-%d'))]"/>
+                <filter string="Este Mes" name="filter_month" 
+                        domain="[('date', '&gt;=', context_today().strftime('%Y-%m-01'))]"/>
+                <separator/>
+                <filter string="Pacientes Personas" name="filter_person" domain="[('patient_type', '=', 'person')]"/>
+                <filter string="Pacientes Animales" name="filter_animal" domain="[('patient_type', '=', 'animal')]"/>
+                <group expand="0" string="Agrupar Por">
+                    <filter string="Médico" name="group_doctor" context="{'group_by': 'doctor_id'}"/>
+                    <filter string="Especialidad" name="group_specialty" context="{'group_by': 'specialty_id'}"/>
+                    <filter string="Paciente" name="group_patient" context="{'group_by': 'patient_name'}"/>
+                    <filter string="Fecha" name="group_date" context="{'group_by': 'date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_medical_clinical_history" model="ir.actions.act_window">
+        <field name="name">Historias Clínicas</field>
+        <field name="res_model">medical.clinical.history</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_filter_draft': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No hay historias clínicas registradas
+            </p>
+            <p>
+                Las historias clínicas se crean automáticamente al atender un turno.
+            </p>
+        </field>
+    </record>
+
+</odoo>

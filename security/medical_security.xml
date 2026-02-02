@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Categoría principal -->
+    <record id="module_category_medical" model="ir.module.category">
+        <field name="name">Gestión Médica</field>
+        <field name="description">Gestión de turnos y atenciones médicas</field>
+        <field name="sequence">50</field>
+    </record>
+
+    <!-- Grupo: Usuario Médico -->
+    <record id="group_medical_user" model="res.groups">
+        <field name="name">Usuario</field>
+        <field name="category_id" ref="module_category_medical"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <!-- Grupo: Recepcionista -->
+    <record id="group_medical_receptionist" model="res.groups">
+        <field name="name">Recepcionista</field>
+        <field name="category_id" ref="module_category_medical"/>
+        <field name="implied_ids" eval="[(4, ref('group_medical_user'))]"/>
+    </record>
+
+    <!-- Grupo: Médico -->
+    <record id="group_medical_doctor" model="res.groups">
+        <field name="name">Médico</field>
+        <field name="category_id" ref="module_category_medical"/>
+        <field name="implied_ids" eval="[(4, ref('group_medical_user'))]"/>
+    </record>
+
+    <!-- Grupo: Administrador Médico -->
+    <record id="group_medical_manager" model="res.groups">
+        <field name="name">Administrador</field>
+        <field name="category_id" ref="module_category_medical"/>
+        <field name="implied_ids" eval="[(4, ref('group_medical_receptionist')), (4, ref('group_medical_doctor'))]"/>
+    </record>
+
+</odoo>

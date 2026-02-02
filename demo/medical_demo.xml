@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Contactos de Médicos -->
+        <record id="partner_doctor_martinez" model="res.partner">
+            <field name="name">Dr. Juan Martínez</field>
+            <field name="phone">+54 11 4567-8901</field>
+            <field name="email">jmartinez@clinica.com</field>
+            <field name="is_company" eval="False"/>
+        </record>
+
+        <record id="partner_doctor_gomez" model="res.partner">
+            <field name="name">Dra. María Gómez</field>
+            <field name="phone">+54 11 4567-8902</field>
+            <field name="email">mgomez@clinica.com</field>
+            <field name="is_company" eval="False"/>
+        </record>
+
+        <record id="partner_doctor_fernandez" model="res.partner">
+            <field name="name">Dr. Carlos Fernández</field>
+            <field name="phone">+54 11 4567-8903</field>
+            <field name="email">cfernandez@veterinaria.com</field>
+            <field name="is_company" eval="False"/>
+        </record>
+
+        <!-- Médicos -->
+        <record id="doctor_martinez" model="medical.doctor">
+            <field name="name">Dr. Juan Martínez</field>
+            <field name="partner_id" ref="partner_doctor_martinez"/>
+            <field name="license_number">MN12345</field>
+            <field name="specialty_ids" eval="[(6, 0, [ref('specialty_general_medicine'), ref('specialty_cardiology')])]"/>
+            <field name="color">1</field>
+        </record>
+
+        <record id="doctor_gomez" model="medical.doctor">
+            <field name="name">Dra. María Gómez</field>
+            <field name="partner_id" ref="partner_doctor_gomez"/>
+            <field name="license_number">MN54321</field>
+            <field name="specialty_ids" eval="[(6, 0, [ref('specialty_pediatrics'), ref('specialty_dermatology')])]"/>
+            <field name="color">3</field>
+        </record>
+
+        <record id="doctor_fernandez" model="medical.doctor">
+            <field name="name">Dr. Carlos Fernández</field>
+            <field name="partner_id" ref="partner_doctor_fernandez"/>
+            <field name="license_number">MV98765</field>
+            <field name="specialty_ids" eval="[(6, 0, [ref('specialty_vet_general'), ref('specialty_vet_surgery')])]"/>
+            <field name="color">9</field>
+        </record>
+
+        <!-- Agendas -->
+        <record id="schedule_martinez" model="medical.schedule">
+            <field name="name">Agenda - Dr. Martínez</field>
+            <field name="doctor_id" ref="doctor_martinez"/>
+            <field name="active" eval="True"/>
+        </record>
+
+        <record id="schedule_gomez" model="medical.schedule">
+            <field name="name">Agenda - Dra. Gómez</field>
+            <field name="doctor_id" ref="doctor_gomez"/>
+            <field name="active" eval="True"/>
+        </record>
+
+        <record id="schedule_fernandez" model="medical.schedule">
+            <field name="name">Agenda - Dr. Fernández</field>
+            <field name="doctor_id" ref="doctor_fernandez"/>
+            <field name="active" eval="True"/>
+        </record>
+
+        <!-- Horarios para Dr. Martínez (Lunes a Viernes 8:00-12:00) -->
+        <record id="schedule_line_martinez_mon_am" model="medical.schedule.line">
+            <field name="schedule_id" ref="schedule_martinez"/>
+            <field name="day_of_week">0</field>
+            <field name="hour_from">8.0</field>
+            <field name="hour_to">12.0</field>
+        </record>
+
+        <record id="schedule_line_martinez_mon_pm" model="medical.schedule.line">
+            <field name="schedule_id" ref="schedule_martinez"/>
+            <field name="day_of_week">0</field>
+            <field name="hour_from">14.0</field>
+            <field name="hour_to">18.0</field>
+        </record>
+
+        <record id="schedule_line_martinez_tue" model="medical.schedule.line">
+            <field name="schedule_id" ref="schedule_martinez"/>
+            <field name="day_of_week">1</field>
+            <field name="hour_from">8.0</field>
+            <field name="hour_to">12.0</field>
+        </record>
+
+        <record id="schedule_line_martinez_wed" model="medical.schedule.line">
+            <field name="schedule_id" ref="schedule_martinez"/>
+            <field name="day_of_week">2</field>
+            <field name="hour_from">8.0</field>
+            <field name="hour_to">12.0</field>
+        </record>
+
+        <record id="schedule_line_martinez_thu" model="medical.schedule.line">
+            <field name="schedule_id" ref="schedule_martinez"/>
+            <field name="day_of_week">3</field>
+            <field name="hour_from">14.0</field>
+            <field name="hour_to">18.0</field>
+        </record>
+
+        <record id="schedule_line_martinez_fri" model="medical.schedule.line">
+            <field name="schedule_id" ref="schedule_martinez"/>
+            <field name="day_of_week">4</field>
+            <field name="hour_from">8.0</field>
+            <field name="hour_to">12.0</field>
+        </record>
+
+        <!-- Horarios para Dra. Gómez (Martes a Sábado 9:00-13:00) -->
+        <record id="schedule_line_gomez_tue" model="medical.schedule.line">
+            <field name="schedule_id" ref="schedule_gomez"/>
+            <field name="day_of_week">1</field>
+            <field name="hour_from">9.0</field>
+            <field name="hour_to">13.0</field>
+        </record>
+
+        <record id="schedule_line_gomez_wed" model="medical.schedule.line">
+            <field name="schedule_id" ref="schedule_gomez"/>
+            <field name="day_of_week">2</field>
+            <field name="hour_from">9.0</field>
+            <field name="hour_to">13.0</field>
+        </record>
+
+        <record id="schedule_line_gomez_thu" model="medical.schedule.line">
+            <field name="schedule_id" ref="schedule_gomez"/>
+            <field name="day_of_week">3</field>
+            <field name="hour_from">9.0</field>
+            <field name="hour_to">13.0</field>
+        </record>
+
+        <record id="schedule_line_gomez_fri" model="medical.schedule.line">
+            <field name="schedule_id" ref="schedule_gomez"/>
+            <field name="day_of_week">4</field>
+            <field name="hour_from">9.0</field>
+            <field name="hour_to">13.0</field>
+        </record>
+
+        <record id="schedule_line_gomez_sat" model="medical.schedule.line">
+            <field name="schedule_id" ref="schedule_gomez"/>
+            <field name="day_of_week">5</field>
+            <field name="hour_from">9.0</field>
+            <field name="hour_to">13.0</field>
+        </record>
+
+        <!-- Horarios para Dr. Fernández (Lunes a Viernes 10:00-17:00) -->
+        <record id="schedule_line_fernandez_mon" model="medical.schedule.line">
+            <field name="schedule_id" ref="schedule_fernandez"/>
+            <field name="day_of_week">0</field>
+            <field name="hour_from">10.0</field>
+            <field name="hour_to">17.0</field>
+        </record>
+
+        <record id="schedule_line_fernandez_tue" model="medical.schedule.line">
+            <field name="schedule_id" ref="schedule_fernandez"/>
+            <field name="day_of_week">1</field>
+            <field name="hour_from">10.0</field>
+            <field name="hour_to">17.0</field>
+        </record>
+
+        <record id="schedule_line_fernandez_wed" model="medical.schedule.line">
+            <field name="schedule_id" ref="schedule_fernandez"/>
+            <field name="day_of_week">2</field>
+            <field name="hour_from">10.0</field>
+            <field name="hour_to">17.0</field>
+        </record>
+
+        <record id="schedule_line_fernandez_thu" model="medical.schedule.line">
+            <field name="schedule_id" ref="schedule_fernandez"/>
+            <field name="day_of_week">3</field>
+            <field name="hour_from">10.0</field>
+            <field name="hour_to">17.0</field>
+        </record>
+
+        <record id="schedule_line_fernandez_fri" model="medical.schedule.line">
+            <field name="schedule_id" ref="schedule_fernandez"/>
+            <field name="day_of_week">4</field>
+            <field name="hour_from">10.0</field>
+            <field name="hour_to">17.0</field>
+        </record>
+
+        <!-- Pacientes de ejemplo -->
+        <record id="patient_lopez" model="res.partner">
+            <field name="name">Ana López</field>
+            <field name="phone">+54 11 5678-9012</field>
+            <field name="email">alopez@email.com</field>
+            <field name="is_patient" eval="True"/>
+            <field name="is_company" eval="False"/>
+        </record>
+
+        <record id="patient_garcia" model="res.partner">
+            <field name="name">Pedro García</field>
+            <field name="phone">+54 11 5678-9013</field>
+            <field name="email">pgarcia@email.com</field>
+            <field name="is_patient" eval="True"/>
+            <field name="is_company" eval="False"/>
+        </record>
+
+        <record id="patient_rodriguez" model="res.partner">
+            <field name="name">Laura Rodríguez</field>
+            <field name="phone">+54 11 5678-9014</field>
+            <field name="email">lrodriguez@email.com</field>
+            <field name="is_patient" eval="True"/>
+            <field name="is_company" eval="False"/>
+        </record>
+
+        <!-- Animales de ejemplo -->
+        <record id="animal_firulais" model="medical.patient.animal">
+            <field name="name">Firulais</field>
+            <field name="owner_id" ref="patient_garcia"/>
+            <field name="species">dog</field>
+            <field name="breed">Golden Retriever</field>
+            <field name="gender">male</field>
+            <field name="birth_date" eval="(datetime.now() - timedelta(days=365*3)).strftime('%Y-%m-%d')"/>
+            <field name="weight">28.5</field>
+            <field name="castrated" eval="True"/>
+        </record>
+
+        <record id="animal_michi" model="medical.patient.animal">
+            <field name="name">Michi</field>
+            <field name="owner_id" ref="patient_lopez"/>
+            <field name="species">cat</field>
+            <field name="breed">Siamés</field>
+            <field name="gender">female</field>
+            <field name="birth_date" eval="(datetime.now() - timedelta(days=365*2)).strftime('%Y-%m-%d')"/>
+            <field name="weight">4.2</field>
+            <field name="castrated" eval="False"/>
+        </record>
+
+    </data>
+</odoo>

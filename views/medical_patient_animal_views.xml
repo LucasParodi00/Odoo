@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista List -->
+    <record id="view_medical_patient_animal_tree" model="ir.ui.view">
+        <field name="name">medical.patient.animal.tree</field>
+        <field name="model">medical.patient.animal</field>
+        <field name="arch" type="xml">
+            <list string="Pacientes Animales">
+                <field name="name"/>
+                <field name="owner_id"/>
+                <field name="species"/>
+                <field name="breed"/>
+                <field name="gender"/>
+                <field name="age"/>
+                <field name="appointment_count"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista Kanban -->
+    <record id="view_medical_patient_animal_kanban" model="ir.ui.view">
+        <field name="name">medical.patient.animal.kanban</field>
+        <field name="model">medical.patient.animal</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile">
+                <field name="name"/>
+                <field name="owner_id"/>
+                <field name="species"/>
+                <field name="breed"/>
+                <field name="photo"/>
+                <field name="age"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_global_click o_kanban_record_has_image_fill">
+                            <div class="o_kanban_image">
+                                <field name="photo" widget="image" class="o_image_64_contain"/>
+                            </div>
+                            <div class="oe_kanban_details">
+                                <strong class="o_kanban_record_title">
+                                    <field name="name"/>
+                                </strong>
+                                <div class="o_kanban_record_subtitle">
+                                    <field name="owner_id"/>
+                                </div>
+                                <div class="o_kanban_tags_section">
+                                    <span class="badge text-bg-primary">
+                                        <field name="species"/>
+                                    </span>
+                                    <span class="badge text-bg-info" t-if="record.breed.raw_value">
+                                        <field name="breed"/>
+                                    </span>
+                                </div>
+                                <div class="o_kanban_record_bottom">
+                                    <div class="oe_kanban_bottom_left">
+                                        <span t-if="record.age.raw_value">
+                                            <i class="fa fa-birthday-cake"/> <field name="age"/>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Vista Form -->
+    <record id="view_medical_patient_animal_form" model="ir.ui.view">
+        <field name="name">medical.patient.animal.form</field>
+        <field name="model">medical.patient.animal</field>
+        <field name="arch" type="xml">
+            <form string="Paciente Animal">
+                <sheet>
+                    <field name="photo" widget="image" class="oe_avatar"/>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_appointments" 
+                                type="object" 
+                                class="oe_stat_button" 
+                                icon="fa-calendar">
+                            <field name="appointment_count" widget="statinfo" string="Turnos"/>
+                        </button>
+                        <button name="action_view_clinical_history" 
+                                type="object" 
+                                class="oe_stat_button" 
+                                icon="fa-file-text">
+                            <field name="clinical_history_count" widget="statinfo" string="Historias"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archivado" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Nombre del animal"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Información General">
+                            <field name="owner_id" options="{'no_create': False}"/>
+                            <field name="species"/>
+                            <field name="breed"/>
+                            <field name="gender"/>
+                            <field name="color"/>
+                        </group>
+                        <group string="Datos Adicionales">
+                            <field name="birth_date"/>
+                            <field name="age" readonly="1"/>
+                            <field name="weight"/>
+                            <field name="microchip"/>
+                            <field name="castrated"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Observaciones" name="observations">
+                            <field name="notes" placeholder="Observaciones sobre el animal..."/>
+                        </page>
+                        <page string="Historias Clínicas" name="clinical_histories">
+                            <field name="clinical_history_ids">
+                                <list>
+                                    <field name="date"/>
+                                    <field name="specialty_id"/>
+                                    <field name="doctor_id"/>
+                                    <field name="diagnosis"/>
+                                    <field name="state"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista Search -->
+    <record id="view_medical_patient_animal_search" model="ir.ui.view">
+        <field name="name">medical.patient.animal.search</field>
+        <field name="model">medical.patient.animal</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Pacientes Animales">
+                <field name="name"/>
+                <field name="owner_id"/>
+                <field name="microchip"/>
+                <field name="species"/>
+                <field name="breed"/>
+                <filter string="Activos" name="filter_active" domain="[('active', '=', True)]"/>
+                <filter string="Archivados" name="filter_inactive" domain="[('active', '=', False)]"/>
+                <filter string="Castrados" name="filter_castrated" domain="[('castrated', '=', True)]"/>
+                <separator/>
+                <filter string="Perros" name="filter_dogs" domain="[('species', '=', 'dog')]"/>
+                <filter string="Gatos" name="filter_cats" domain="[('species', '=', 'cat')]"/>
+                <group expand="0" string="Agrupar Por">
+                    <filter string="Especie" name="group_species" context="{'group_by': 'species'}"/>
+                    <filter string="Dueño" name="group_owner" context="{'group_by': 'owner_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_medical_patient_animal" model="ir.actions.act_window">
+        <field name="name">Pacientes Animales</field>
+        <field name="res_model">medical.patient.animal</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="context">{'search_default_filter_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Registrar un nuevo paciente animal
+            </p>
+            <p>
+                Registre mascotas y animales para su atención veterinaria.
+            </p>
+        </field>
+    </record>
+
+</odoo>

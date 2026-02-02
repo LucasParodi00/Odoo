@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista List -->
+    <record id="view_medical_schedule_tree" model="ir.ui.view">
+        <field name="name">medical.schedule.tree</field>
+        <field name="model">medical.schedule</field>
+        <field name="arch" type="xml">
+            <list string="Agendas Médicas">
+                <field name="name"/>
+                <field name="doctor_id"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista Form -->
+    <record id="view_medical_schedule_form" model="ir.ui.view">
+        <field name="name">medical.schedule.form</field>
+        <field name="model">medical.schedule</field>
+        <field name="arch" type="xml">
+            <form string="Agenda Médica">
+                <sheet>
+                    <widget name="web_ribbon" title="Inactiva" bg_color="text-bg-danger" invisible="active"/>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="doctor_id" options="{'no_create': True}"/>
+                        </group>
+                        <group>
+                            <field name="active"/>
+                            <field name="date_start"/>
+                            <field name="date_end"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Horarios de Trabajo" name="schedule_lines">
+                            <field name="schedule_line_ids">
+                                <list editable="bottom">
+                                    <field name="day_of_week"/>
+                                    <field name="hour_from" widget="float_time"/>
+                                    <field name="hour_to" widget="float_time"/>
+                                    <field name="hour_from_display" string="Desde"/>
+                                    <field name="hour_to_display" string="Hasta"/>
+                                </list>
+                            </field>
+                            <group>
+                                <p class="text-muted">
+                                    Defina los días y rangos horarios en los que el médico atiende.
+                                    Puede agregar múltiples rangos por día.
+                                </p>
+                            </group>
+                        </page>
+                        <page string="Bloqueos" name="blocks">
+                            <field name="block_ids">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="block_type"/>
+                                    <field name="date_from"/>
+                                    <field name="date_to"/>
+                                    <field name="all_day" widget="boolean_toggle"/>
+                                </list>
+                                <form>
+                                    <sheet>
+                                        <group>
+                                            <group>
+                                                <field name="name"/>
+                                                <field name="block_type"/>
+                                                <field name="schedule_id" invisible="1"/>
+                                            </group>
+                                            <group>
+                                                <field name="date_from"/>
+                                                <field name="date_to"/>
+                                                <field name="all_day"/>
+                                                <field name="color" widget="color_picker"/>
+                                            </group>
+                                        </group>
+                                        <group string="Notas">
+                                            <field name="notes" nolabel="1" placeholder="Notas adicionales..."/>
+                                        </group>
+                                    </sheet>
+                                    <chatter/>
+                                </form>
+                            </field>
+                            <group>
+                                <p class="text-muted">
+                                    Los bloqueos impiden que se agenden turnos en esos períodos
+                                    (vacaciones, ausencias, capacitaciones, etc.).
+                                </p>
+                            </group>
+                        </page>
+                        <page string="Notas" name="notes">
+                            <field name="notes" placeholder="Notas adicionales sobre esta agenda..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista Search -->
+    <record id="view_medical_schedule_search" model="ir.ui.view">
+        <field name="name">medical.schedule.search</field>
+        <field name="model">medical.schedule</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Agendas">
+                <field name="name"/>
+                <field name="doctor_id"/>
+                <filter string="Activas" name="filter_active" domain="[('active', '=', True)]"/>
+                <filter string="Inactivas" name="filter_inactive" domain="[('active', '=', False)]"/>
+                <group expand="0" string="Agrupar Por">
+                    <filter string="Médico" name="group_doctor" context="{'group_by': 'doctor_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_medical_schedule" model="ir.actions.act_window">
+        <field name="name">Agendas Médicas</field>
+        <field name="res_model">medical.schedule</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_filter_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Configurar agenda médica
+            </p>
+            <p>
+                Las agendas definen la disponibilidad base de los médicos.
+                Configure días, horarios y bloqueos.
+            </p>
+        </field>
+    </record>
+
+    <!-- Vista Calendar para Bloqueos -->
+    <record id="view_medical_schedule_block_calendar" model="ir.ui.view">
+        <field name="name">medical.schedule.block.calendar</field>
+        <field name="model">medical.schedule.block</field>
+        <field name="arch" type="xml">
+            <calendar string="Bloqueos de Agenda" 
+                      date_start="date_from" 
+                      date_stop="date_to" 
+                      color="doctor_id"
+                      mode="month"
+                      quick_create="0">
+                <field name="name"/>
+                <field name="doctor_id"/>
+                <field name="block_type"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- Action para Bloqueos -->
+    <record id="action_medical_schedule_block" model="ir.actions.act_window">
+        <field name="name">Bloqueos de Agenda</field>
+        <field name="res_model">medical.schedule.block</field>
+        <field name="view_mode">calendar,list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crear un bloqueo de agenda
+            </p>
+            <p>
+                Los bloqueos impiden que se agenden turnos en períodos específicos.
+            </p>
+        </field>
+    </record>
+
+</odoo>

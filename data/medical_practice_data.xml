@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Prácticas para Clínica General -->
+        <record id="practice_general_consultation" model="medical.practice">
+            <field name="name">Consulta General</field>
+            <field name="code">CG01</field>
+            <field name="specialty_id" ref="specialty_general_medicine"/>
+            <field name="duration">0.5</field>
+            <field name="description">Consulta médica general de rutina</field>
+        </record>
+
+        <record id="practice_general_control" model="medical.practice">
+            <field name="name">Control de Salud</field>
+            <field name="code">CG02</field>
+            <field name="specialty_id" ref="specialty_general_medicine"/>
+            <field name="duration">0.33</field>
+            <field name="description">Control de salud preventivo</field>
+        </record>
+
+        <!-- Prácticas para Pediatría -->
+        <record id="practice_pediatric_consultation" model="medical.practice">
+            <field name="name">Consulta Pediátrica</field>
+            <field name="code">PED01</field>
+            <field name="specialty_id" ref="specialty_pediatrics"/>
+            <field name="duration">0.5</field>
+            <field name="description">Consulta médica para niños</field>
+        </record>
+
+        <record id="practice_pediatric_control" model="medical.practice">
+            <field name="name">Control del Niño Sano</field>
+            <field name="code">PED02</field>
+            <field name="specialty_id" ref="specialty_pediatrics"/>
+            <field name="duration">0.5</field>
+            <field name="description">Control preventivo pediátrico</field>
+        </record>
+
+        <!-- Prácticas para Cardiología -->
+        <record id="practice_cardiology_consultation" model="medical.practice">
+            <field name="name">Consulta Cardiológica</field>
+            <field name="code">CAR01</field>
+            <field name="specialty_id" ref="specialty_cardiology"/>
+            <field name="duration">0.67</field>
+            <field name="description">Consulta con cardiólogo</field>
+        </record>
+
+        <record id="practice_electrocardiogram" model="medical.practice">
+            <field name="name">Electrocardiograma</field>
+            <field name="code">CAR02</field>
+            <field name="specialty_id" ref="specialty_cardiology"/>
+            <field name="duration">0.5</field>
+            <field name="description">Estudio electrocardiográfico</field>
+        </record>
+
+        <!-- Prácticas para Dermatología -->
+        <record id="practice_dermatology_consultation" model="medical.practice">
+            <field name="name">Consulta Dermatológica</field>
+            <field name="code">DER01</field>
+            <field name="specialty_id" ref="specialty_dermatology"/>
+            <field name="duration">0.5</field>
+            <field name="description">Consulta con dermatólogo</field>
+        </record>
+
+        <record id="practice_skin_biopsy" model="medical.practice">
+            <field name="name">Biopsia de Piel</field>
+            <field name="code">DER02</field>
+            <field name="specialty_id" ref="specialty_dermatology"/>
+            <field name="duration">0.75</field>
+            <field name="description">Extracción de muestra de piel para análisis</field>
+        </record>
+
+        <!-- Prácticas para Traumatología -->
+        <record id="practice_traumatology_consultation" model="medical.practice">
+            <field name="name">Consulta Traumatológica</field>
+            <field name="code">TRA01</field>
+            <field name="specialty_id" ref="specialty_traumatology"/>
+            <field name="duration">0.5</field>
+            <field name="description">Consulta con traumatólogo</field>
+        </record>
+
+        <record id="practice_fracture_treatment" model="medical.practice">
+            <field name="name">Tratamiento de Fractura</field>
+            <field name="code">TRA02</field>
+            <field name="specialty_id" ref="specialty_traumatology"/>
+            <field name="duration">1.0</field>
+            <field name="description">Reducción y yeso/inmovilización</field>
+        </record>
+
+        <!-- Prácticas para Odontología -->
+        <record id="practice_dental_consultation" model="medical.practice">
+            <field name="name">Consulta Odontológica</field>
+            <field name="code">ODO01</field>
+            <field name="specialty_id" ref="specialty_odontology"/>
+            <field name="duration">0.5</field>
+            <field name="description">Consulta dental general</field>
+        </record>
+
+        <record id="practice_dental_cleaning" model="medical.practice">
+            <field name="name">Limpieza Dental</field>
+            <field name="code">ODO02</field>
+            <field name="specialty_id" ref="specialty_odontology"/>
+            <field name="duration">0.75</field>
+            <field name="description">Profilaxis dental</field>
+        </record>
+
+        <record id="practice_tooth_extraction" model="medical.practice">
+            <field name="name">Extracción Dental</field>
+            <field name="code">ODO03</field>
+            <field name="specialty_id" ref="specialty_odontology"/>
+            <field name="duration">1.0</field>
+            <field name="description">Extracción de pieza dental</field>
+        </record>
+
+        <!-- Prácticas para Veterinaria General -->
+        <record id="practice_vet_consultation" model="medical.practice">
+            <field name="name">Consulta Veterinaria</field>
+            <field name="code">VET01</field>
+            <field name="specialty_id" ref="specialty_vet_general"/>
+            <field name="duration">0.5</field>
+            <field name="description">Consulta veterinaria general</field>
+        </record>
+
+        <record id="practice_vaccination" model="medical.practice">
+            <field name="name">Vacunación</field>
+            <field name="code">VET02</field>
+            <field name="specialty_id" ref="specialty_vet_general"/>
+            <field name="duration">0.25</field>
+            <field name="description">Aplicación de vacunas</field>
+        </record>
+
+        <record id="practice_deworming" model="medical.practice">
+            <field name="name">Desparasitación</field>
+            <field name="code">VET03</field>
+            <field name="specialty_id" ref="specialty_vet_general"/>
+            <field name="duration">0.25</field>
+            <field name="description">Tratamiento antiparasitario</field>
+        </record>
+
+        <!-- Prácticas para Cirugía Veterinaria -->
+        <record id="practice_castration" model="medical.practice">
+            <field name="name">Castración</field>
+            <field name="code">VTS01</field>
+            <field name="specialty_id" ref="specialty_vet_surgery"/>
+            <field name="duration">2.0</field>
+            <field name="description">Cirugía de castración/esterilización</field>
+        </record>
+
+        <record id="practice_minor_surgery" model="medical.practice">
+            <field name="name">Cirugía Menor</field>
+            <field name="code">VTS02</field>
+            <field name="specialty_id" ref="specialty_vet_surgery"/>
+            <field name="duration">1.5</field>
+            <field name="description">Procedimientos quirúrgicos menores</field>
+        </record>
+
+        <record id="practice_major_surgery" model="medical.practice">
+            <field name="name">Cirugía Mayor</field>
+            <field name="code">VTS03</field>
+            <field name="specialty_id" ref="specialty_vet_surgery"/>
+            <field name="duration">3.0</field>
+            <field name="description">Procedimientos quirúrgicos complejos</field>
+        </record>
+
+        <!-- Prácticas para Patología (mixta) -->
+        <record id="practice_lab_analysis" model="medical.practice">
+            <field name="name">Análisis de Laboratorio</field>
+            <field name="code">PAT01</field>
+            <field name="specialty_id" ref="specialty_pathology"/>
+            <field name="duration">0.33</field>
+            <field name="description">Extracción de muestras para análisis</field>
+        </record>
+
+        <record id="practice_radiology" model="medical.practice">
+            <field name="name">Radiografía</field>
+            <field name="code">PAT02</field>
+            <field name="specialty_id" ref="specialty_pathology"/>
+            <field name="duration">0.5</field>
+            <field name="description">Estudio radiológico</field>
+        </record>
+
+        <record id="practice_ultrasound" model="medical.practice">
+            <field name="name">Ecografía</field>
+            <field name="code">PAT03</field>
+            <field name="specialty_id" ref="specialty_pathology"/>
+            <field name="duration">0.67</field>
+            <field name="description">Estudio ecográfico</field>
+        </record>
+
+    </data>
+</odoo>

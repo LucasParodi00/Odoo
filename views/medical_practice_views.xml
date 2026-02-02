@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista List -->
+    <record id="view_medical_practice_tree" model="ir.ui.view">
+        <field name="name">medical.practice.tree</field>
+        <field name="model">medical.practice</field>
+        <field name="arch" type="xml">
+            <list string="Prácticas Médicas">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="specialty_id"/>
+                <field name="duration" widget="float_time"/>
+                <field name="duration_minutes" string="Minutos"/>
+                <field name="appointment_count"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista Form -->
+    <record id="view_medical_practice_form" model="ir.ui.view">
+        <field name="name">medical.practice.form</field>
+        <field name="model">medical.practice</field>
+        <field name="arch" type="xml">
+            <form string="Práctica Médica">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_appointments" 
+                                type="object" 
+                                class="oe_stat_button" 
+                                icon="fa-calendar">
+                            <field name="appointment_count" widget="statinfo" string="Turnos"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archivado" bg_color="text-bg-danger" invisible="active"/>
+                    <group>
+                        <group>
+                            <field name="name" placeholder="ej. Consulta Clínica, Castración"/>
+                            <field name="code"/>
+                            <field name="specialty_id" options="{'no_create': True}"/>
+                        </group>
+                        <group>
+                            <field name="duration" widget="float_time" string="Duración"/>
+                            <field name="duration_minutes" string="Duración (minutos)"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <group string="Descripción">
+                        <field name="description" nolabel="1" placeholder="Descripción detallada de la práctica..."/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista Search -->
+    <record id="view_medical_practice_search" model="ir.ui.view">
+        <field name="name">medical.practice.search</field>
+        <field name="model">medical.practice</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Prácticas">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="specialty_id"/>
+                <filter string="Activas" name="filter_active" domain="[('active', '=', True)]"/>
+                <filter string="Archivadas" name="filter_inactive" domain="[('active', '=', False)]"/>
+                <group expand="0" string="Agrupar Por">
+                    <filter string="Especialidad" name="group_specialty" context="{'group_by': 'specialty_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_medical_practice" model="ir.actions.act_window">
+        <field name="name">Prácticas / Atenciones</field>
+        <field name="res_model">medical.practice</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_filter_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crear una nueva práctica o atención médica
+            </p>
+            <p>
+                Las prácticas definen los tipos de atención disponibles
+                en cada especialidad y su duración.
+            </p>
+        </field>
+    </record>
+
+</odoo>
