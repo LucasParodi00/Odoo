@@ -29,6 +29,15 @@ class MedicalSchedule(models.Model):
         tracking=True
     )
     
+    specialty_id = fields.Many2one(
+        'medical.specialty',
+        string='Especialidad',
+        required=True,
+        ondelete='restrict',
+        tracking=True,
+        help='Especialidad médica a la que corresponde esta agenda'
+    )
+    
     active = fields.Boolean(
         string='Activo',
         default=True,
@@ -68,20 +77,42 @@ class MedicalSchedule(models.Model):
         help='Vacaciones, ausencias o bloqueos manuales'
     )
     
-    @api.constrains('active', 'doctor_id')
+    @api.onchange('doctor_id')
+    def _onchange_doctor_id(self):
+        """Al cambiar médico, limpiar especialidad si no corresponde"""
+        if self.doctor_id and self.specialty_id:
+            if self.specialty_id not in self.doctor_id.specialty_ids:
+                self.specialty_id = False
+        
+        # Retornar domain para specialty_id
+        if self.doctor_id:
+            return {
+                'domain': {
+                    'specialty_id': [('id', 'in', self.doctor_id.specialty_ids.ids)]
+                }
+            }
+        else:
+            return {
+                'domain': {
+                    'specialty_id': []
+                }
+            }
+    
+    @api.constrains('active', 'doctor_id', 'specialty_id')
     def _check_active_schedule(self):
-        """Solo puede haber una agenda activa por médico"""
+        """Solo puede haber una agenda activa por médico y especialidad"""
         for schedule in self:
             if schedule.active:
                 other_active = self.search([
                     ('doctor_id', '=', schedule.doctor_id.id),
+                    ('specialty_id', '=', schedule.specialty_id.id),
                     ('active', '=', True),
                     ('id', '!=', schedule.id)
                 ])
                 if other_active:
                     raise ValidationError(
-                        _('El médico %s ya tiene una agenda activa: %s') % 
-                        (schedule.doctor_id.name, other_active[0].name)
+                        _('El médico %s ya tiene una agenda activa para la especialidad %s: %s') % 
+                        (schedule.doctor_id.name, schedule.specialty_id.name, other_active[0].name)
                     )
     
     @api.constrains('date_start', 'date_end')
@@ -92,3 +123,13 @@ class MedicalSchedule(models.Model):
                     raise ValidationError(
                         _('La fecha de inicio no puede ser posterior a la fecha de fin.')
                     )
+    
+    @api.constrains('doctor_id', 'specialty_id')
+    def _check_doctor_specialty(self):
+        """Validar que la especialidad pertenezca al médico"""
+        for schedule in self:
+            if schedule.specialty_id not in schedule.doctor_id.specialty_ids:
+                raise ValidationError(
+                    _('La especialidad %s no corresponde al médico %s.') % 
+                    (schedule.specialty_id.name, schedule.doctor_id.partner_id.name)
+                )

@@ -8,6 +8,7 @@
             <list string="Agendas Médicas">
                 <field name="name"/>
                 <field name="doctor_id"/>
+                <field name="specialty_id"/>
                 <field name="date_start"/>
                 <field name="date_end"/>
                 <field name="active" widget="boolean_toggle"/>
@@ -27,6 +28,7 @@
                         <group>
                             <field name="name"/>
                             <field name="doctor_id" options="{'no_create': True}"/>
+                            <field name="specialty_id" options="{'no_create': True}"/>
                         </group>
                         <group>
                             <field name="active"/>
@@ -108,10 +110,12 @@
             <search string="Buscar Agendas">
                 <field name="name"/>
                 <field name="doctor_id"/>
+                <field name="specialty_id"/>
                 <filter string="Activas" name="filter_active" domain="[('active', '=', True)]"/>
                 <filter string="Inactivas" name="filter_inactive" domain="[('active', '=', False)]"/>
                 <group expand="0" string="Agrupar Por">
                     <filter string="Médico" name="group_doctor" context="{'group_by': 'doctor_id'}"/>
+                    <filter string="Especialidad" name="group_specialty" context="{'group_by': 'specialty_id'}"/>
                 </group>
             </search>
         </field>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista del Wizard de Selección de Horario -->
+    <record id="view_appointment_slot_wizard_form" model="ir.ui.view">
+        <field name="name">appointment.slot.wizard.form</field>
+        <field name="model">appointment.slot.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Seleccionar Día y Horario">
+                <group>
+                    <group>
+                        <field name="doctor_id" readonly="1"/>
+                        <field name="specialty_id" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="practice_id" readonly="1"/>
+                    </group>
+                </group>
+                
+                <separator string="📅 Paso 1: Calendario de Disponibilidad"/>
+                <group>
+                    <field name="available_dates_html" nolabel="1" readonly="1"/>
+                </group>
+                
+                <separator string="🗓️ Paso 2: Seleccione el Día"/>
+                <group>
+                    <field name="available_date" widget="date" 
+                           help="Elija uno de los días VERDES del calendario"/>
+                </group>
+                
+                <separator string="⏰ Paso 3: Horarios Disponibles" invisible="not available_date"/>
+                <group invisible="not available_date">
+                    <field name="available_slots_html" nolabel="1" readonly="1"/>
+                </group>
+                
+                <separator string="✅ Paso 4: Confirme su Selección" invisible="not available_date"/>
+                <group invisible="not available_date">
+                    <field name="available_datetime_selection" widget="radio" 
+                           help="Seleccione uno de los horarios disponibles arriba"/>
+                </group>
+                
+                <footer>
+                    <button string="✓ Confirmar Horario" type="object" name="action_confirm_slot" 
+                            class="btn-primary" invisible="not available_datetime_selection"/>
+                    <button string="Cancelar" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

@@ -38,14 +38,22 @@ class MedicalAppointment(models.Model):
     # Campos helper para dominios dinámicos
     available_specialty_ids = fields.Many2many(
         'medical.specialty',
+        'appointment_specialty_available_rel',
+        'appointment_id',
+        'specialty_id',
         compute='_compute_available_specialties',
-        string='Especialidades Disponibles'
+        string='Especialidades Disponibles',
+        store=False
     )
     
     available_doctor_ids = fields.Many2many(
         'medical.doctor',
+        'appointment_doctor_available_rel',
+        'appointment_id',
+        'doctor_id',
         compute='_compute_available_doctors',
-        string='Médicos Disponibles'
+        string='Médicos Disponibles',
+        store=False
     )
     
     # Práctica/Atención
@@ -242,9 +250,10 @@ class MedicalAppointment(models.Model):
         """Compute las especialidades disponibles según el médico seleccionado"""
         for appointment in self:
             if appointment.doctor_id:
+                # FLUJO 1: Mostrar solo especialidades del médico
                 appointment.available_specialty_ids = appointment.doctor_id.specialty_ids
             else:
-                # Si no hay médico, mostrar todas las especialidades
+                # FLUJO 2 o sin selección: Mostrar todas las especialidades
                 appointment.available_specialty_ids = self.env['medical.specialty'].search([])
     
     @api.depends('specialty_id')
@@ -252,15 +261,17 @@ class MedicalAppointment(models.Model):
         """Compute los médicos disponibles según la especialidad"""
         for appointment in self:
             if appointment.specialty_id:
+                # FLUJO 2: Mostrar solo médicos con esta especialidad
                 appointment.available_doctor_ids = self.env['medical.doctor'].search([
                     ('specialty_ids', 'in', appointment.specialty_id.ids)
                 ])
             else:
+                # FLUJO 1 o sin selección: Mostrar todos los médicos
                 appointment.available_doctor_ids = self.env['medical.doctor'].search([])
     
     @api.depends('doctor_id', 'specialty_id', 'practice_id')
     def _compute_available_slots_html(self):
-        """Genera HTML con cuadraditos de días y horarios disponibles"""
+        """Genera HTML con calendario de días disponibles - SOLO VISUAL"""
         for appointment in self:
             if not appointment.doctor_id or not appointment.specialty_id or not appointment.practice_id:
                 appointment.available_slots_html = ''
@@ -280,7 +291,7 @@ class MedicalAppointment(models.Model):
                 month
             )
             
-            appointment.available_slots_html = appointment._generate_slots_html(slots_data, year, month)
+            appointment.available_slots_html = appointment._generate_calendar_preview(slots_data, year, month)
     
     @api.depends('clinical_history_id')
     def _compute_has_clinical_history(self):
@@ -302,7 +313,7 @@ class MedicalAppointment(models.Model):
     
     @api.onchange('doctor_id')
     def _onchange_doctor_id(self):
-        """FLUJO 1: Al seleccionar médico, cargar sus especialidades"""
+        """FLUJO 1 (Médico específico): Al seleccionar médico, filtrar solo sus especialidades"""
         if self.doctor_id:
             # Si el médico tiene solo una especialidad, auto-seleccionarla
             if len(self.doctor_id.specialty_ids) == 1:
@@ -312,20 +323,51 @@ class MedicalAppointment(models.Model):
                 # Limpiar si el médico no tiene esa especialidad
                 self.specialty_id = False
                 self.practice_id = False
+            
+            # Retornar domain para filtrar solo especialidades del médico
+            return {
+                'domain': {
+                    'specialty_id': [('id', 'in', self.doctor_id.specialty_ids.ids)]
+                }
+            }
         else:
-            # Si se borra el médico, mantener especialidad y práctica (para Flujo 2)
-            pass
+            # Si se borra el médico en Flujo 1, limpiar specialty y practice
+            if not self.specialty_id:
+                self.practice_id = False
+            return {
+                'domain': {
+                    'specialty_id': []
+                }
+            }
     
     @api.onchange('specialty_id')
     def _onchange_specialty_id(self):
-        """Al cambiar especialidad, filtrar prácticas y verificar médico"""
+        """FLUJO 2 (Sin preferencia): Al cambiar especialidad, filtrar médicos y prácticas"""
+        result = {}
+        
         # Limpiar práctica si no corresponde a la nueva especialidad
         if self.practice_id and self.practice_id.specialty_id != self.specialty_id:
             self.practice_id = False
         
-        # Si hay médico seleccionado y no tiene esta especialidad, limpiarlo (Flujo 2)
-        if self.doctor_id and self.specialty_id not in self.doctor_id.specialty_ids:
-            self.doctor_id = False
+        if self.specialty_id:
+            # FLUJO 2: Si hay especialidad pero NO hay médico seleccionado aún
+            # Filtrar médicos que tengan esta especialidad
+            if not self.doctor_id:
+                result['domain'] = {
+                    'doctor_id': [('specialty_ids', 'in', self.specialty_id.id)]
+                }
+            # FLUJO 1: Si ya hay médico seleccionado, verificar que tenga la especialidad
+            else:
+                if self.specialty_id not in self.doctor_id.specialty_ids:
+                    # La especialidad no corresponde al médico, limpiar práctica
+                    self.practice_id = False
+        else:
+            # Si se limpia la especialidad, resetear domain de médicos
+            result['domain'] = {
+                'doctor_id': []
+            }
+        
+        return result
     
     @api.onchange('practice_id')
     def _onchange_practice_id(self):
@@ -376,7 +418,7 @@ class MedicalAppointment(models.Model):
                     (appointment.doctor_id.name, appointment.specialty_id.name)
                 )
     
-    @api.constrains('date_start', 'date_end', 'doctor_id', 'state')
+    @api.constrains('date_start', 'date_end', 'doctor_id', 'specialty_id', 'state')
     def _check_availability(self):
         """Validar disponibilidad del médico"""
         for appointment in self:
@@ -395,10 +437,13 @@ class MedicalAppointment(models.Model):
                         overlapping[0].display_name
                     )
                 
-                # Verificar bloqueos de agenda
-                if appointment.doctor_id.current_schedule_id:
+                # Verificar bloqueos de agenda - usar agenda específica de la especialidad
+                schedule = appointment.doctor_id.schedule_ids.filtered(
+                    lambda s: s.active and s.specialty_id.id == appointment.specialty_id.id
+                )
+                if schedule:
                     blocks = self.env['medical.schedule.block'].search([
-                        ('schedule_id', '=', appointment.doctor_id.current_schedule_id.id),
+                        ('schedule_id', '=', schedule[0].id),
                         ('date_from', '<', appointment.date_end),
                         ('date_to', '>', appointment.date_start),
                     ])
@@ -464,51 +509,85 @@ class MedicalAppointment(models.Model):
             'cancelled_date': fields.Datetime.now(),
         })
     
-    def _generate_slots_html(self, slots_data, year, month):
-        """Genera HTML con cuadraditos de días y horarios disponibles"""
+    def _generate_calendar_preview(self, slots_data, year, month):
+        """Genera HTML del calendario - SOLO VISUAL para mostrar disponibilidad"""
+        if not slots_data or not slots_data.get('days'):
+            return '<div class="alert alert-warning">No hay horarios disponibles para este mes</div>'
+        
+        from calendar import monthrange
+        num_days = monthrange(year, month)[1]
+        first_weekday = monthrange(year, month)[0]
+        
+        month_names = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                       'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+        
+        html = f'''
+        <div style="margin: 20px 0; font-family: Arial, sans-serif;">
+            <h4 style="text-align: center; margin-bottom: 20px; color: #333;">
+                📅 {month_names[month-1]} {year}
+            </h4>
+            
+            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-bottom: 10px;">
+                <div style="text-align: center; font-weight: bold; padding: 5px; background: #f0f0f0; border-radius: 3px;">Lun</div>
+                <div style="text-align: center; font-weight: bold; padding: 5px; background: #f0f0f0; border-radius: 3px;">Mar</div>
+                <div style="text-align: center; font-weight: bold; padding: 5px; background: #f0f0f0; border-radius: 3px;">Mié</div>
+                <div style="text-align: center; font-weight: bold; padding: 5px; background: #f0f0f0; border-radius: 3px;">Jue</div>
+                <div style="text-align: center; font-weight: bold; padding: 5px; background: #f0f0f0; border-radius: 3px;">Vie</div>
+                <div style="text-align: center; font-weight: bold; padding: 5px; background: #f0f0f0; border-radius: 3px;">Sáb</div>
+                <div style="text-align: center; font-weight: bold; padding: 5px; background: #f0f0f0; border-radius: 3px;">Dom</div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-bottom: 20px;">
+        '''
+        
+        for _ in range(first_weekday):
+            html += '<div></div>'
+        
+        for day in range(1, num_days + 1):
+            date_str = f"{year}-{month:02d}-{day:02d}"
+            day_data = slots_data['days'].get(date_str, {})
+            has_slots = day_data.get('has_availability', False)
+            
+            if has_slots:
+                slots_count = len(day_data.get('slots', []))
+                html += f'''
+                <div style="background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); border: 2px solid #28a745; border-radius: 8px; padding: 10px; text-align: center; font-weight: bold;">
+                    <div style="font-size: 18px;">{day}</div>
+                    <div style="font-size: 10px; color: #28a745; margin-top: 3px;">✓ {slots_count} turnos</div>
+                </div>
+                '''
+            else:
+                html += f'''
+                <div style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 10px; text-align: center; color: #999; font-size: 18px;">
+                    {day}
+                </div>
+                '''
+        
+        html += '''
+            </div>
+            
+            <div style="padding: 15px; background: #e3f2fd; border-left: 4px solid #2196f3; border-radius: 5px; text-align: center;">
+                <strong>💡 Use el botón "📅 Seleccionar Día y Horario" abajo para elegir un turno</strong>
+            </div>
+        </div>
+        '''
+        
+        return html
+        """Genera HTML con calendario y horarios disponibles - SIN JavaScript"""
         if not slots_data or not slots_data.get('days'):
             return '<div class="alert alert-warning">No hay horarios disponibles para este mes</div>'
         
         # Obtener días del mes
-        from calendar import monthrange, day_name
+        from calendar import monthrange
         num_days = monthrange(year, month)[1]
         first_weekday = monthrange(year, month)[0]  # 0=Lun
         
         month_names = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
                        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
         
+        # Construir HTML sin JavaScript - todo expandido
         html = f'''
-        <style>
-            .appointment-calendar {{
-                margin: 20px 0;
-                font-family: Arial, sans-serif;
-            }}
-            .day-available:hover {{
-                transform: scale(1.05);
-                transition: all 0.2s;
-            }}
-            .slot-item:hover {{
-                background-color: #28a745 !important;
-                color: white !important;
-            }}
-            .slots-popup {{
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background: white;
-                border: 2px solid #28a745;
-                padding: 20px;
-                z-index: 10000;
-                border-radius: 10px;
-                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-                max-width: 400px;
-                max-height: 500px;
-                overflow-y: auto;
-            }}
-        </style>
-        
-        <div class="appointment-calendar">
+        <div style="margin: 20px 0; font-family: Arial, sans-serif;">
             <h4 style="text-align: center; margin-bottom: 20px; color: #333;">
                 📅 {month_names[month-1]} {year}
             </h4>
@@ -525,16 +604,12 @@ class MedicalAppointment(models.Model):
             </div>
             
             <!-- Días del mes -->
-            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px;">
+            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-bottom: 30px;">
         '''
         
         # Espacios en blanco antes del primer día
         for _ in range(first_weekday):
             html += '<div></div>'
-        
-        # ID único para evitar conflictos
-        import random
-        popup_id = f"popup_{random.randint(1000, 9999)}"
         
         # Renderizar cada día
         for day in range(1, num_days + 1):
@@ -543,86 +618,83 @@ class MedicalAppointment(models.Model):
             has_slots = day_data.get('has_availability', False)
             
             if has_slots:
-                # Día con disponibilidad - clickeable
                 slots_count = len(day_data.get('slots', []))
-                slots_html = ""
-                
-                # Generar HTML de slots
-                for slot in day_data.get('slots', []):
-                    slot_time = slot['time']
-                    slot_datetime = slot['datetime']
-                    slots_html += f'''
-                    <div class="slot-item" 
-                         style="padding: 8px; margin: 5px 0; background: #f8f9fa; border-radius: 5px; cursor: pointer; border: 1px solid #ddd; text-align: center;"
-                         onclick="
-                            var dateField = document.querySelector('input[name=date_start]');
-                            if (dateField) {{
-                                dateField.value = '{slot_datetime}';
-                                dateField.dispatchEvent(new Event('change', {{ bubbles: true }}));
-                            }}
-                            document.getElementById('{popup_id}').style.display = 'none';
-                         ">
-                        ⏰ <strong>{slot_time}</strong>
-                    </div>
-                    '''
-                
                 html += f'''
-                <div class="day-available" 
-                     style="
-                        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-                        border: 2px solid #28a745;
-                        border-radius: 8px;
-                        padding: 10px;
-                        text-align: center;
-                        cursor: pointer;
-                        font-weight: bold;
-                        position: relative;
-                     "
-                     onclick="document.getElementById('{popup_id}_{day}').style.display = 'block'">
+                <div style="background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); border: 2px solid #28a745; border-radius: 8px; padding: 10px; text-align: center; font-weight: bold;">
                     <div style="font-size: 18px;">{day}</div>
                     <div style="font-size: 10px; color: #28a745; margin-top: 3px;">✓ {slots_count} turnos</div>
                 </div>
-                
-                <!-- Popup para este día -->
-                <div id="{popup_id}_{day}" class="slots-popup" style="display: none;">
-                    <h5 style="margin: 0 0 15px 0; color: #333; text-align: center;">
-                        🗓️ {date_str}
-                    </h5>
-                    <div style="margin-bottom: 15px;">
-                        {slots_html}
-                    </div>
-                    <button 
-                        onclick="document.getElementById('{popup_id}_{day}').style.display = 'none'" 
-                        style="width: 100%; padding: 10px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
-                        ✖ Cerrar
-                    </button>
-                </div>
                 '''
             else:
-                # Día sin disponibilidad
                 html += f'''
-                <div class="day-unavailable" 
-                     style="
-                        background-color: #f8f9fa;
-                        border: 1px solid #dee2e6;
-                        border-radius: 8px;
-                        padding: 10px;
-                        text-align: center;
-                        color: #999;
-                        font-size: 18px;
-                     ">
+                <div style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 10px; text-align: center; color: #999; font-size: 18px;">
                     {day}
                 </div>
                 '''
         
+        html += '</div>'
+        
+        # Ahora listar TODOS los horarios disponibles por día
+        html += '''
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-top: 20px;">
+                <h5 style="color: #333; margin-bottom: 15px; text-align: center;">
+                    🕒 Horarios Disponibles - Copie y pegue en el campo "Fecha/Hora Inicio"
+                </h5>
+        '''
+        
+        # Obtener días ordenados
+        sorted_days = sorted(slots_data['days'].items())
+        
+        for date_str, day_data in sorted_days:
+            if not day_data.get('has_availability'):
+                continue
+                
+            slots_list = day_data.get('slots', [])
+            if not slots_list:
+                continue
+            
+            # Convertir fecha a formato legible
+            from datetime import datetime as dt
+            date_obj = dt.strptime(date_str, '%Y-%m-%d')
+            day_names = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+            day_name = day_names[date_obj.weekday()]
+            formatted_date = f"{day_name} {date_obj.day}/{date_obj.month}/{date_obj.year}"
+            
+            html += f'''
+            <div style="margin-bottom: 20px; background: white; padding: 15px; border-radius: 8px; border-left: 4px solid #28a745;">
+                <h6 style="color: #28a745; margin: 0 0 10px 0; font-weight: bold;">
+                    📅 {formatted_date}
+                </h6>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px;">
+            '''
+            
+            # Listar todos los horarios
+            for slot in slots_list:
+                slot_time = slot.get('time', '')
+                slot_datetime = slot.get('datetime', '')
+                
+                if slot_time and slot_datetime:
+                    html += f'''
+                    <div style="background: #e8f5e9; border: 1px solid #4caf50; border-radius: 5px; padding: 10px; text-align: center; font-family: monospace; font-size: 14px; font-weight: bold; color: #2e7d32;">
+                        ⏰ {slot_time}<br/>
+                        <span style="font-size: 10px; color: #666; font-weight: normal;">{slot_datetime}</span>
+                    </div>
+                    '''
+            
+            html += '''
+                </div>
+            </div>
+            '''
+        
         html += '''
             </div>
             
-            <div style="margin-top: 20px; padding: 15px; background: #e7f3ff; border-left: 4px solid #007bff; border-radius: 5px;">
+            <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 5px;">
                 <strong>💡 Instrucciones:</strong><br/>
-                • Haga clic en un día <span style="color: #28a745; font-weight: bold;">VERDE</span> para ver horarios<br/>
-                • Seleccione un horario para agendar el turno<br/>
-                • El horario se completará automáticamente
+                • Los días <span style="color: #28a745; font-weight: bold;">VERDES</span> en el calendario tienen disponibilidad<br/>
+                • Vea todos los horarios disponibles arriba<br/>
+                • Copie el horario completo (ejemplo: 2026-02-15 09:00:00) y péguelo en el campo "Fecha/Hora Inicio" abajo<br/>
+                • ⚠️ Debe copiar el formato completo: AAAA-MM-DD HH:MM:SS
             </div>
         </div>
         '''
@@ -705,13 +777,31 @@ class MedicalAppointment(models.Model):
             'target': 'current',
         }
     
+    def action_select_datetime_slot(self):
+        """Abrir wizard para seleccionar fecha y hora"""
+        self.ensure_one()
+        
+        if not self.doctor_id or not self.specialty_id or not self.practice_id:
+            raise UserError(_('Debe seleccionar primero el médico, especialidad y práctica.'))
+        
+        return {
+            'name': _('Seleccionar Día y Horario'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'appointment.slot.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_appointment_id': self.id,
+            },
+        }
+    
     @api.model
     def get_available_slots(self, doctor_id, specialty_id, practice_id, year, month):
         """
         Obtiene slots disponibles para un médico en una especialidad/práctica específica.
         
         REGLA CLAVE: Solo muestra horarios REALMENTE disponibles.
-        - Considera agenda del médico para esa especialidad
+        - Considera agenda del médico para esa especialidad específica
         - Excluye bloqueos
         - Excluye turnos ya agendados
         - Considera duración de la práctica
@@ -730,8 +820,10 @@ class MedicalAppointment(models.Model):
         if not doctor or not practice:
             return {'days': {}}
         
-        # Obtener agenda activa
-        schedule = doctor.schedule_ids.filtered(lambda s: s.active)
+        # Obtener agenda activa para la especialidad específica
+        schedule = doctor.schedule_ids.filtered(
+            lambda s: s.active and s.specialty_id.id == specialty_id
+        )
         if not schedule:
             return {'days': {}}
         

@@ -108,44 +108,68 @@
                     </div>
                     
                     <div class="alert alert-info mb-3" role="alert">
-                        <strong>💡 Dos formas de agendar:</strong><br/>
-                        <strong>Flujo 1:</strong> Busque el médico → Seleccione especialidad/práctica → Elija horario<br/>
-                        <strong>Flujo 2:</strong> Seleccione especialidad → Práctica → Médico → Elija horario
+                        <strong>💡 Elija cómo desea agendar el turno:</strong><br/><br/>
+                        <strong>🩺 FLUJO 1 - Con médico específico:</strong><br/>
+                        1️⃣ Seleccione el Médico → 2️⃣ Seleccione su Especialidad → 3️⃣ Seleccione la Práctica<br/><br/>
+                        <strong>🏥 FLUJO 2 - Sin preferencia de médico:</strong><br/>
+                        1️⃣ Seleccione la Especialidad → 2️⃣ Seleccione el Médico → 3️⃣ Seleccione la Práctica
                     </div>
                     
                     <group>
-                        <group string="🩺 FLUJO 1: ¿Conoce al médico?">
+                        <group string="🩺 FLUJO 1: ¿Tiene médico de preferencia?">
+                            <field name="available_doctor_ids" invisible="1"/>
                             <field name="doctor_id" 
                                    placeholder="Buscar médico por nombre..." 
                                    options="{'no_create': True}"
-                                   help="Si conoce al médico, búsquelo aquí primero"/>
+                                   help="Si conoce al médico, selecciónelo aquí primero"/>
                         </group>
-                        <group string="🏥 FLUJO 2: O seleccione especialidad">
+                        <group string="🏥 FLUJO 2: O seleccione la especialidad">
+                            <field name="available_specialty_ids" invisible="1"/>
                             <field name="specialty_id" 
                                    options="{'no_create': True}"
-                                   help="Seleccione la especialidad médica"/>
+                                   help="Si no tiene preferencia de médico, seleccione la especialidad"/>
                         </group>
                     </group>
                     
-                    <group invisible="not doctor_id and not specialty_id">
-                        <group string="Especialidad/Profesión">
+                    <!-- FLUJO 1: Médico seleccionado primero -->
+                    <group invisible="not doctor_id or specialty_id and not doctor_id">
+                        <group string="Especialidad del Médico">
                             <field name="specialty_id" 
-                                   invisible="not doctor_id"
-                                   required="doctor_id and True or False"
                                    options="{'no_create': True}"
-                                   help="Seleccione con qué especialidad desea atenderse"/>
-                            <field name="practice_id" 
-                                   domain="[('specialty_id', '=', specialty_id)]"
-                                   required="specialty_id and True or False"
-                                   help="Tipo de atención o práctica"/>
+                                   domain="[('id', 'in', available_specialty_ids)]"
+                                   help="Especialidades del médico seleccionado"/>
                         </group>
-                        <group string="Médico">
+                        <group string="Práctica/Atención">
+                            <field name="practice_id" 
+                                   invisible="not specialty_id"
+                                   domain="[('specialty_id', '=', specialty_id)]"
+                                   help="Tipo de atención o práctica de la especialidad"/>
+                            <field name="duration" 
+                                   invisible="not practice_id"
+                                   widget="float_time" 
+                                   readonly="1" 
+                                   string="Duración de la consulta"/>
+                        </group>
+                    </group>
+                    
+                    <!-- FLUJO 2: Especialidad seleccionada primero -->
+                    <group invisible="doctor_id or not specialty_id">
+                        <group string="Médicos con esta Especialidad">
                             <field name="doctor_id" 
-                                   invisible="doctor_id"
-                                   required="specialty_id and practice_id and True or False"
                                    options="{'no_create': True}"
-                                   help="Médicos que atienden esta especialidad"/>
-                            <field name="duration" widget="float_time" readonly="1"/>
+                                   domain="[('id', 'in', available_doctor_ids)]"
+                                   help="Médicos que atienden la especialidad seleccionada"/>
+                        </group>
+                        <group string="Práctica/Atención">
+                            <field name="practice_id" 
+                                   invisible="not doctor_id"
+                                   domain="[('specialty_id', '=', specialty_id)]"
+                                   help="Tipo de atención o práctica de la especialidad"/>
+                            <field name="duration" 
+                                   invisible="not practice_id"
+                                   widget="float_time" 
+                                   readonly="1" 
+                                   string="Duración de la consulta"/>
                         </group>
                     </group>
                     
@@ -157,8 +181,7 @@
                                 <strong>ℹ️ Calendario de Disponibilidad</strong><br/>
                                 • Los días <span style="color: #28a745; font-weight: bold;">VERDES</span> tienen horarios disponibles<br/>
                                 • Los días <span style="color: #6c757d;">GRISES</span> no tienen disponibilidad<br/>
-                                • Haga clic en un día verde para ver los horarios<br/>
-                                • Haga clic en un horario para seleccionarlo
+                                • Use el botón "📅 Seleccionar Día y Horario" para elegir el turno
                             </div>
                         </group>
                     </group>
@@ -170,11 +193,22 @@
                     </group>
                     
                     <group invisible="not doctor_id or not specialty_id or not practice_id">
+                        <group colspan="2" style="text-align: center;">
+                            <button name="action_select_datetime_slot" 
+                                    string="📅 Seleccionar Día y Horario" 
+                                    type="object" 
+                                    class="btn-primary btn-lg"
+                                    style="font-size: 16px; padding: 15px 30px; margin: 20px auto;"/>
+                        </group>
+                    </group>
+                    
+                    <group invisible="not doctor_id or not specialty_id or not practice_id">
                         <group string="Horario Seleccionado">
                             <field name="date_start" 
                                    required="doctor_id and specialty_id and practice_id and True or False"
                                    widget="datetime"
-                                   help="Seleccione desde el calendario arriba o ingrese manualmente"/>
+                                   readonly="1"
+                                   help="Use el botón de arriba para seleccionar"/>
                             <field name="date_end" readonly="1"/>
                         </group>
                         <group></group>

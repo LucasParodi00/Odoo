@@ -55,6 +55,9 @@
         'views/medical_clinical_history_views.xml',
         'views/res_partner_views.xml',
         
+        # Wizards
+        'wizard/appointment_slot_wizard_views.xml',
+        
         # Menús
         'views/medical_menus.xml',
     ],

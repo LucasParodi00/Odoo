@@ -15,12 +15,6 @@ class MedicalDoctor(models.Model):
     _order = 'name'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    name = fields.Char(
-        string='Nombre',
-        required=True,
-        tracking=True
-    )
-    
     partner_id = fields.Many2one(
         'res.partner',
         string='Contacto',
@@ -28,6 +22,13 @@ class MedicalDoctor(models.Model):
         ondelete='restrict',
         tracking=True,
         help='Contacto asociado al médico'
+    )
+    
+    name = fields.Char(
+        string='Nombre',
+        related='partner_id.name',
+        store=True,
+        readonly=True
     )
     
     license_number = fields.Char(
@@ -47,23 +48,29 @@ class MedicalDoctor(models.Model):
         help='Especialidades que atiende el médico'
     )
     
-    phone = fields.Char(
-        related='partner_id.phone',
-        string='Teléfono',
-        readonly=False
-    )
-    
-    mobile = fields.Char(
-        related='partner_id.mobile',
-        string='Móvil',
-        readonly=False
-    )
-    
-    email = fields.Char(
-        related='partner_id.email',
-        string='Email',
-        readonly=False
-    )
+    def write(self, vals):
+        """Sobrescribir write para crear agendas cuando se agregan especialidades"""
+        result = super().write(vals)
+        
+        # Si se modificaron las especialidades, crear agendas faltantes
+        if 'specialty_ids' in vals:
+            for doctor in self:
+                for specialty in doctor.specialty_ids:
+                    # Verificar si ya existe una agenda para esta especialidad
+                    existing = self.env['medical.schedule'].search([
+                        ('doctor_id', '=', doctor.id),
+                        ('specialty_id', '=', specialty.id)
+                    ], limit=1)
+                    
+                    if not existing:
+                        self.env['medical.schedule'].create({
+                            'name': f'Agenda {specialty.name} - {doctor.partner_id.name}',
+                            'doctor_id': doctor.id,
+                            'specialty_id': specialty.id,
+                            'active': True,
+                        })
+        
+        return result
     
     active = fields.Boolean(
         string='Activo',
@@ -155,9 +162,17 @@ class MedicalDoctor(models.Model):
     
     @api.depends('schedule_ids', 'schedule_ids.active')
     def _compute_current_schedule(self):
+        """Obtiene la primera agenda activa (deprecado - usar get_schedule_for_specialty)"""
         for doctor in self:
             active_schedule = doctor.schedule_ids.filtered(lambda s: s.active)
             doctor.current_schedule_id = active_schedule[0] if active_schedule else False
+    
+    def get_schedule_for_specialty(self, specialty_id):
+        """Obtiene la agenda activa para una especialidad específica"""
+        self.ensure_one()
+        return self.schedule_ids.filtered(
+            lambda s: s.active and s.specialty_id.id == specialty_id
+        )
     
     @api.constrains('license_number')
     def _check_license_number(self):
@@ -175,13 +190,22 @@ class MedicalDoctor(models.Model):
     
     @api.model_create_multi
     def create(self, vals_list):
-        """Sobrescribir create para asegurar que se cree una agenda por defecto"""
+        """Sobrescribir create para asegurar que se cree una agenda por cada especialidad"""
         doctors = super().create(vals_list)
         for doctor in doctors:
-            if not doctor.schedule_ids:
-                self.env['medical.schedule'].create({
-                    'name': f'Agenda - {doctor.name}',
-                    'doctor_id': doctor.id,
-                    'active': True,
-                })
+            # Crear agenda para cada especialidad del médico
+            for specialty in doctor.specialty_ids:
+                # Verificar si ya existe una agenda para esta especialidad
+                existing = self.env['medical.schedule'].search([
+                    ('doctor_id', '=', doctor.id),
+                    ('specialty_id', '=', specialty.id)
+                ], limit=1)
+                
+                if not existing:
+                    self.env['medical.schedule'].create({
+                        'name': f'Agenda {specialty.name} - {doctor.partner_id.name}',
+                        'doctor_id': doctor.id,
+                        'specialty_id': specialty.id,
+                        'active': True,
+                    })
         return doctors
