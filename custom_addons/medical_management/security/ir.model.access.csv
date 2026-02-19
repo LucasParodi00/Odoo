@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_medical_specialty_user,access_medical_specialty_user,model_medical_specialty,base.group_user,1,1,1,1
+access_medical_doctor_specialty_user,access_medical_doctor_specialty_user,model_medical_doctor_specialty,base.group_user,1,1,1,1
+access_medical_schedule_user,access_medical_schedule_user,model_medical_schedule,base.group_user,1,1,1,1
+access_medical_schedule_line_user,access_medical_schedule_line_user,model_medical_schedule_line,base.group_user,1,1,1,1
+access_medical_patient_pet_user,access_medical_patient_pet_user,model_medical_patient_pet,base.group_user,1,1,1,1

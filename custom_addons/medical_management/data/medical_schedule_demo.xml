@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Agenda 1: Dr. Juan Carlos Pérez - Consulta General -->
+        <record id="schedule_perez_general_morning" model="medical.schedule">
+            <field name="name">Agenda Mañana - Consulta General</field>
+            <field name="doctor_id" ref="doctor_1"/>
+            <field name="specialty_id" ref="specialty_general"/>
+            <field name="active">True</field>
+        </record>
+
+        <!-- Líneas de horario para agenda 1 -->
+        <record id="schedule_line_perez_mon_morning" model="medical.schedule.line">
+            <field name="schedule_id" ref="schedule_perez_general_morning"/>
+            <field name="day_of_week">0</field>
+            <field name="hour_from">8.0</field>
+            <field name="hour_to">13.0</field>
+        </record>
+
+        <record id="schedule_line_perez_wed_morning" model="medical.schedule.line">
+            <field name="schedule_id" ref="schedule_perez_general_morning"/>
+            <field name="day_of_week">2</field>
+            <field name="hour_from">8.0</field>
+            <field name="hour_to">13.0</field>
+        </record>
+
+        <record id="schedule_line_perez_fri_morning" model="medical.schedule.line">
+            <field name="schedule_id" ref="schedule_perez_general_morning"/>
+            <field name="day_of_week">4</field>
+            <field name="hour_from">8.0</field>
+            <field name="hour_to">13.0</field>
+        </record>
+
+        <!-- Agenda 2: Dr. Juan Carlos Pérez - Cardiología -->
+        <record id="schedule_perez_cardio_afternoon" model="medical.schedule">
+            <field name="name">Agenda Tarde - Cardiología</field>
+            <field name="doctor_id" ref="doctor_1"/>
+            <field name="specialty_id" ref="specialty_cardiologia"/>
+            <field name="active">True</field>
+        </record>
+
+        <record id="schedule_line_perez_tue_afternoon" model="medical.schedule.line">
+            <field name="schedule_id" ref="schedule_perez_cardio_afternoon"/>
+            <field name="day_of_week">1</field>
+            <field name="hour_from">16.0</field>
+            <field name="hour_to">20.0</field>
+        </record>
+
+        <record id="schedule_line_perez_thu_afternoon" model="medical.schedule.line">
+            <field name="schedule_id" ref="schedule_perez_cardio_afternoon"/>
+            <field name="day_of_week">3</field>
+            <field name="hour_from">16.0</field>
+            <field name="hour_to">20.0</field>
+        </record>
+
+        <!-- Agenda 3: Dra. María Laura González - Oftalmología -->
+        <record id="schedule_gonzalez_oftalmo" model="medical.schedule">
+            <field name="name">Agenda Completa - Oftalmología</field>
+            <field name="doctor_id" ref="doctor_2"/>
+            <field name="specialty_id" ref="specialty_oftalmologia"/>
+            <field name="active">True</field>
+        </record>
+
+        <record id="schedule_line_gonzalez_mon" model="medical.schedule.line">
+            <field name="schedule_id" ref="schedule_gonzalez_oftalmo"/>
+            <field name="day_of_week">0</field>
+            <field name="hour_from">9.0</field>
+            <field name="hour_to">12.0</field>
+        </record>
+
+        <record id="schedule_line_gonzalez_mon_afternoon" model="medical.schedule.line">
+            <field name="schedule_id" ref="schedule_gonzalez_oftalmo"/>
+            <field name="day_of_week">0</field>
+            <field name="hour_from">15.0</field>
+            <field name="hour_to">19.0</field>
+        </record>
+
+        <record id="schedule_line_gonzalez_wed" model="medical.schedule.line">
+            <field name="schedule_id" ref="schedule_gonzalez_oftalmo"/>
+            <field name="day_of_week">2</field>
+            <field name="hour_from">9.0</field>
+            <field name="hour_to">12.0</field>
+        </record>
+
+        <record id="schedule_line_gonzalez_wed_afternoon" model="medical.schedule.line">
+            <field name="schedule_id" ref="schedule_gonzalez_oftalmo"/>
+            <field name="day_of_week">2</field>
+            <field name="hour_from">15.0</field>
+            <field name="hour_to">19.0</field>
+        </record>
+
+        <!-- Agenda 4: Dr. Roberto Sánchez - Cirugía -->
+        <record id="schedule_sanchez_cirugia" model="medical.schedule">
+            <field name="name">Agenda Quirófano - Cirugía</field>
+            <field name="doctor_id" ref="doctor_3"/>
+            <field name="specialty_id" ref="specialty_cirugia"/>
+            <field name="active">True</field>
+        </record>
+
+        <record id="schedule_line_sanchez_tue" model="medical.schedule.line">
+            <field name="schedule_id" ref="schedule_sanchez_cirugia"/>
+            <field name="day_of_week">1</field>
+            <field name="hour_from">8.0</field>
+            <field name="hour_to">14.0</field>
+        </record>
+
+        <record id="schedule_line_sanchez_thu" model="medical.schedule.line">
+            <field name="schedule_id" ref="schedule_sanchez_cirugia"/>
+            <field name="day_of_week">3</field>
+            <field name="hour_from">8.0</field>
+            <field name="hour_to">14.0</field>
+        </record>
+
+        <!-- Agenda 5: Dra. Ana Martínez - Pediatría -->
+        <record id="schedule_martinez_pediatria" model="medical.schedule">
+            <field name="name">Agenda Pediatría - Matutina</field>
+            <field name="doctor_id" ref="doctor_4"/>
+            <field name="specialty_id" ref="specialty_pediatria"/>
+            <field name="active">True</field>
+        </record>
+
+        <record id="schedule_line_martinez_mon" model="medical.schedule.line">
+            <field name="schedule_id" ref="schedule_martinez_pediatria"/>
+            <field name="day_of_week">0</field>
+            <field name="hour_from">8.0</field>
+            <field name="hour_to">13.0</field>
+        </record>
+
+        <record id="schedule_line_martinez_tue" model="medical.schedule.line">
+            <field name="schedule_id" ref="schedule_martinez_pediatria"/>
+            <field name="day_of_week">1</field>
+            <field name="hour_from">8.0</field>
+            <field name="hour_to">13.0</field>
+        </record>
+
+        <record id="schedule_line_martinez_wed" model="medical.schedule.line">
+            <field name="schedule_id" ref="schedule_martinez_pediatria"/>
+            <field name="day_of_week">2</field>
+            <field name="hour_from">8.0</field>
+            <field name="hour_to">13.0</field>
+        </record>
+
+        <record id="schedule_line_martinez_thu" model="medical.schedule.line">
+            <field name="schedule_id" ref="schedule_martinez_pediatria"/>
+            <field name="day_of_week">3</field>
+            <field name="hour_from">8.0</field>
+            <field name="hour_to">13.0</field>
+        </record>
+
+        <record id="schedule_line_martinez_fri" model="medical.schedule.line">
+            <field name="schedule_id" ref="schedule_martinez_pediatria"/>
+            <field name="day_of_week">4</field>
+            <field name="hour_from">8.0</field>
+            <field name="hour_to">13.0</field>
+        </record>
+
+    </data>
+</odoo>

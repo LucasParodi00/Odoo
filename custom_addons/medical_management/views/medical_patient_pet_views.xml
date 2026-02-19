@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Vista Form de Mascota -->
+    <record id="view_medical_patient_pet_form" model="ir.ui.view">
+        <field name="name">medical.patient.pet.form</field>
+        <field name="model">medical.patient.pet</field>
+        <field name="arch" type="xml">
+            <form string="Mascota">
+                <sheet>
+                    <widget name="web_ribbon" title="Archivado" bg_color="text-bg-danger" invisible="active"/>
+                    <field name="photo" widget="image" class="oe_avatar" options="{'size': [90, 90]}"/>
+                    <div class="oe_title">
+                        <label for="name" string="Nombre"/>
+                        <h1>
+                            <field name="name" placeholder="Nombre de la mascota" required="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Información General">
+                            <field name="owner_id" options="{'no_quick_create': True}"/>
+                            <field name="pet_type" required="1"/>
+                            <field name="breed"/>
+                            <field name="color"/>
+                        </group>
+                        <group string="Información Adicional">
+                            <field name="birthdate"/>
+                            <field name="age" readonly="1"/>
+                            <field name="active" widget="boolean_toggle"/>
+                        </group>
+                    </group>
+                    
+                    <notebook>
+                        <page string="Notas">
+                            <field name="notes" placeholder="Agregue notas sobre la mascota..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista List de Mascota -->
+    <record id="view_medical_patient_pet_list" model="ir.ui.view">
+        <field name="name">medical.patient.pet.list</field>
+        <field name="model">medical.patient.pet</field>
+        <field name="arch" type="xml">
+            <list string="Mascotas">
+                <field name="name"/>
+                <field name="owner_id"/>
+                <field name="pet_type"/>
+                <field name="breed" optional="show"/>
+                <field name="birthdate" optional="hide"/>
+                <field name="age"/>
+                <field name="color" optional="hide"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista Kanban de Mascota -->
+    <record id="view_medical_patient_pet_kanban" model="ir.ui.view">
+        <field name="name">medical.patient.pet.kanban</field>
+        <field name="model">medical.patient.pet</field>
+        <field name="arch" type="xml">
+            <kanban string="Mascotas">
+                <field name="id"/>
+                <field name="name"/>
+                <field name="owner_id"/>
+                <field name="pet_type"/>
+                <field name="breed"/>
+                <field name="age"/>
+                <field name="color"/>
+                <field name="photo"/>
+                <field name="active"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_global_click">
+                            <div class="o_kanban_image">
+                                <img t-att-src="kanban_image('medical.patient.pet', 'photo', record.id.raw_value)" 
+                                     alt="Foto" 
+                                     class="o_image_64_cover"
+                                     t-if="record.photo.raw_value"/>
+                                <t t-else="">
+                                    <span class="fa fa-paw fa-3x text-muted"/>
+                                </t>
+                            </div>
+                            <div class="oe_kanban_details">
+                                <strong class="o_kanban_record_title">
+                                    <field name="name"/>
+                                </strong>
+                                <div class="o_kanban_record_subtitle">
+                                    <field name="pet_type"/>
+                                    <span t-if="record.breed.raw_value"> - <field name="breed"/></span>
+                                </div>
+                                <div>
+                                    <i class="fa fa-user" title="Propietario"/> <field name="owner_id"/>
+                                </div>
+                                <div t-if="record.age.raw_value">
+                                    <i class="fa fa-birthday-cake" title="Edad"/> <field name="age"/>
+                                </div>
+                                <div t-if="record.color.raw_value">
+                                    <i class="fa fa-paint-brush" title="Color"/> <field name="color"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Vista Search de Mascota -->
+    <record id="view_medical_patient_pet_search" model="ir.ui.view">
+        <field name="name">medical.patient.pet.search</field>
+        <field name="model">medical.patient.pet</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Mascotas">
+                <field name="name"/>
+                <field name="owner_id"/>
+                <field name="pet_type"/>
+                <field name="breed"/>
+                <separator/>
+                <filter string="Activos" name="active" domain="[('active', '=', True)]"/>
+                <filter string="Inactivos" name="inactive" domain="[('active', '=', False)]"/>
+                <separator/>
+                <group expand="0" string="Agrupar Por">
+                    <filter string="Propietario" name="group_owner" context="{'group_by': 'owner_id'}"/>
+                    <filter string="Tipo" name="group_type" context="{'group_by': 'pet_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Acción para Mascotas -->
+    <record id="action_medical_patient_pet" model="ir.actions.act_window">
+        <field name="name">Mascotas</field>
+        <field name="res_model">medical.patient.pet</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Registrar una nueva mascota
+            </p>
+            <p>
+                Las mascotas son pacientes vinculados a un propietario (contacto).
+                Agregue información como tipo, raza, fecha de nacimiento y más.
+            </p>
+        </field>
+    </record>
+
+</odoo>

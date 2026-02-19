@@ -1,0 +1,21 @@
+/* Estilos para el módulo de Gestión de Turnos */
+
+.o_appointment_calendar {
+    width: 100%;
+    height: 100%;
+}
+
+.o_appointment_slot_available {
+    background-color: #28a745 !important;
+    border-color: #28a745 !important;
+}
+
+.o_appointment_slot_reserved {
+    background-color: #ffc107 !important;
+    border-color: #ffc107 !important;
+}
+
+.o_appointment_slot_cancelled {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+}

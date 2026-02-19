@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Médicos de demostración -->
+        <record id="doctor_1" model="res.partner">
+            <field name="name">Dr. Juan Carlos Pérez</field>
+            <field name="is_doctor">True</field>
+            <field name="doctor_license_number">MP 12345</field>
+            <field name="doctor_dni">20-12345678-9</field>
+            <field name="phone">+54 11 4567-8901</field>
+            <field name="email">jperez@clinica.com</field>
+        </record>
+
+        <record id="doctor_2" model="res.partner">
+            <field name="name">Dra. María Laura González</field>
+            <field name="is_doctor">True</field>
+            <field name="doctor_license_number">MP 23456</field>
+            <field name="doctor_dni">27-23456789-0</field>
+            <field name="phone">+54 11 4567-8902</field>
+            <field name="email">mgonzalez@clinica.com</field>
+        </record>
+
+        <record id="doctor_3" model="res.partner">
+            <field name="name">Dr. Roberto Sánchez</field>
+            <field name="is_doctor">True</field>
+            <field name="doctor_license_number">MP 34567</field>
+            <field name="doctor_dni">23-34567890-1</field>
+            <field name="phone">+54 11 4567-8903</field>
+            <field name="email">rsanchez@clinica.com</field>
+        </record>
+
+        <record id="doctor_4" model="res.partner">
+            <field name="name">Dra. Ana Martínez</field>
+            <field name="is_doctor">True</field>
+            <field name="doctor_license_number">MP 45678</field>
+            <field name="doctor_dni">28-45678901-2</field>
+            <field name="phone">+54 11 4567-8904</field>
+            <field name="email">amartinez@clinica.com</field>
+        </record>
+
+        <record id="doctor_5" model="res.partner">
+            <field name="name">Dr. Carlos Fernández</field>
+            <field name="is_doctor">True</field>
+            <field name="doctor_license_number">MP 56789</field>
+            <field name="doctor_dni">25-56789012-3</field>
+            <field name="phone">+54 11 4567-8905</field>
+            <field name="email">cfernandez@clinica.com</field>
+        </record>
+
+        <!-- Especialidades para cada médico con duraciones -->
+        
+        <!-- Dr. Juan Carlos Pérez - Consulta General y Cardiología -->
+        <record id="doctor_specialty_perez_general" model="medical.doctor.specialty">
+            <field name="doctor_id" ref="doctor_1"/>
+            <field name="specialty_id" ref="specialty_general"/>
+            <field name="duration">30</field>
+            <field name="active">True</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <record id="doctor_specialty_perez_cardio" model="medical.doctor.specialty">
+            <field name="doctor_id" ref="doctor_1"/>
+            <field name="specialty_id" ref="specialty_cardiologia"/>
+            <field name="duration">45</field>
+            <field name="active">True</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <!-- Dra. María Laura González - Oftalmología -->
+        <record id="doctor_specialty_gonzalez_oftalmo" model="medical.doctor.specialty">
+            <field name="doctor_id" ref="doctor_2"/>
+            <field name="specialty_id" ref="specialty_oftalmologia"/>
+            <field name="duration">40</field>
+            <field name="active">True</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <!-- Dr. Roberto Sánchez - Cirugía y Traumatología -->
+        <record id="doctor_specialty_sanchez_cirugia" model="medical.doctor.specialty">
+            <field name="doctor_id" ref="doctor_3"/>
+            <field name="specialty_id" ref="specialty_cirugia"/>
+            <field name="duration">60</field>
+            <field name="active">True</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <record id="doctor_specialty_sanchez_trauma" model="medical.doctor.specialty">
+            <field name="doctor_id" ref="doctor_3"/>
+            <field name="specialty_id" ref="specialty_traumatologia"/>
+            <field name="duration">50</field>
+            <field name="active">True</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <!-- Dra. Ana Martínez - Pediatría -->
+        <record id="doctor_specialty_martinez_pediatria" model="medical.doctor.specialty">
+            <field name="doctor_id" ref="doctor_4"/>
+            <field name="specialty_id" ref="specialty_pediatria"/>
+            <field name="duration">35</field>
+            <field name="active">True</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <!-- Dr. Carlos Fernández - Dermatología -->
+        <record id="doctor_specialty_fernandez_dermato" model="medical.doctor.specialty">
+            <field name="doctor_id" ref="doctor_5"/>
+            <field name="specialty_id" ref="specialty_dermatologia"/>
+            <field name="duration">25</field>
+            <field name="active">True</field>
+            <field name="sequence">10</field>
+        </record>
+
+    </data>
+</odoo>

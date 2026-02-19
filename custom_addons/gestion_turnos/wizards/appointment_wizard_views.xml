@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Vista Form del Wizard -->
+    <record id="view_appointment_wizard_form" model="ir.ui.view">
+        <field name="name">appointment.wizard.form</field>
+        <field name="model">appointment.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Solicitar Turno">
+                <sheet>
+                    <group>
+                        <group string="Información del Turno">
+                            <field name="specialty_id" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="available_doctor_ids" invisible="1"/>
+                            <field name="doctor_id" options="{'no_create': True}"/>
+                        </group>
+                        
+                        <group string="Fecha y Horario">
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                            <field name="available_slot_ids" invisible="1"/>
+                            <field name="slot_id" 
+                                   domain="[('id', 'in', available_slot_ids)]"
+                                   options="{'no_create': True, 'no_open': True}"/>
+                        </group>
+                    </group>
+                    
+                    <group>
+                        <group string="Paciente">
+                            <field name="patient_type" widget="radio" options="{'horizontal': true}"/>
+                            <field name="patient_id" 
+                                   invisible="patient_type != 'human'"
+                                   options="{'no_quick_create': False, 'create_edit': True}"/>
+                            <field name="pet_id" 
+                                   invisible="patient_type != 'pet'"
+                                   options="{'no_quick_create': False, 'create_edit': True}"/>
+                        </group>
+                        
+                        <group string="Notas">
+                            <field name="notes" nolabel="1" placeholder="Notas adicionales sobre el turno..."/>
+                        </group>
+                    </group>
+                </sheet>
+                
+                <footer>
+                    <button name="action_create_appointment" 
+                            string="Crear Turno" 
+                            type="object" 
+                            class="btn-primary"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción del Wizard -->
+    <record id="action_appointment_wizard" model="ir.actions.act_window">
+        <field name="name">Nuevo Turno</field>
+        <field name="res_model">appointment.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Secuencia para Turnos -->
+    <record id="seq_medical_appointment" model="ir.sequence">
+        <field name="name">Turno Médico</field>
+        <field name="code">medical.appointment</field>
+        <field name="prefix">TM-</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <!-- Menú Principal de Turnos (bajo Gestión Médica) -->
+    <menuitem id="menu_medical_appointments"
+              name="Turnos"
+              parent="medical_management.menu_medical_management_root"
+              sequence="1"/>
+
+    <!-- Sub-menú: Ver Turnos (por defecto) -->
+    <menuitem id="menu_medical_appointment_list"
+              name="Ver Turnos"
+              parent="menu_medical_appointments"
+              action="action_medical_appointment"
+              sequence="1"/>
+
+    <!-- Sub-menú: Solicitar Turno -->
+    <menuitem id="menu_appointment_wizard"
+              name="Nuevo Turno"
+              parent="menu_medical_appointments"
+              action="action_appointment_wizard"
+              sequence="2"/>
+
+    <!-- Sub-menú: Slots Disponibles -->
+    <menuitem id="menu_appointment_slot"
+              name="Slots Disponibles"
+              parent="menu_medical_appointments"
+              action="action_appointment_slot"
+              sequence="3"/>
+
+</odoo>

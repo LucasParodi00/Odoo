@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Vista Form de Agenda (Modal) -->
+    <record id="view_medical_schedule_form" model="ir.ui.view">
+        <field name="name">medical.schedule.form</field>
+        <field name="model">medical.schedule</field>
+        <field name="arch" type="xml">
+            <form string="Agenda Médica">
+                <sheet>
+                    <widget name="web_ribbon" title="Archivado" bg_color="text-bg-danger" invisible="active"/>
+                    <group>
+                        <group>
+                            <field name="name" placeholder="ej: Agenda Mañana - Cirugía" required="1"/>
+                            <field name="doctor_id" 
+                                   invisible="context.get('default_doctor_id', False)"
+                                   options="{'no_create': True}"/>
+                            <field name="specialty_id" 
+                                   widget="selection"
+                                   context="{'doctor_id': doctor_id}"
+                                   options="{'no_create': True, 'no_create_edit': True}"/>
+                        </group>
+                        <group>
+                            <field name="active" widget="boolean_toggle"/>
+                        </group>
+                    </group>
+                    
+                    <notebook>
+                        <page string="Horarios">
+                            <field name="schedule_line_ids">
+                                <list string="Horarios" editable="bottom">
+                                    <field name="day_of_week" required="1"/>
+                                    <field name="hour_from" widget="float_time" required="1"/>
+                                    <field name="hour_to" widget="float_time" required="1"/>
+                                    <field name="hour_from_display" readonly="1" optional="show"/>
+                                    <field name="hour_to_display" readonly="1" optional="show"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista Tree de Agenda -->
+    <record id="view_medical_schedule_tree" model="ir.ui.view">
+        <field name="name">medical.schedule.tree</field>
+        <field name="model">medical.schedule</field>
+        <field name="arch" type="xml">
+            <list string="Agendas">
+                <field name="name"/>
+                <field name="doctor_id"/>
+                <field name="specialty_id" widget="badge"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista Search de Agenda -->
+    <record id="view_medical_schedule_search" model="ir.ui.view">
+        <field name="name">medical.schedule.search</field>
+        <field name="model">medical.schedule</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Agendas">
+                <field name="name"/>
+                <field name="doctor_id"/>
+                <field name="specialty_id"/>
+                <separator/>
+                <filter string="Activas" name="active" domain="[('active', '=', True)]"/>
+                <filter string="Inactivas" name="inactive" domain="[('active', '=', False)]"/>
+                <separator/>
+                <group expand="0" string="Agrupar Por">
+                    <filter string="Médico" name="group_doctor" context="{'group_by': 'doctor_id'}"/>
+                    <filter string="Especialidad" name="group_specialty" context="{'group_by': 'specialty_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Acción para Agendas -->
+    <record id="action_medical_schedule" model="ir.actions.act_window">
+        <field name="name">Agendas</field>
+        <field name="res_model">medical.schedule</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crear una nueva agenda médica
+            </p>
+            <p>
+                Las agendas definen los horarios de atención de los médicos para cada especialidad.
+                Configure los días y rangos horarios para generar turnos automáticamente.
+            </p>
+        </field>
+    </record>
+
+    <!-- Acción para abrir formulario de agenda (usado desde vista de médico) -->
+    <record id="action_medical_schedule_form" model="ir.actions.act_window">
+        <field name="name">Agenda Médica</field>
+        <field name="res_model">medical.schedule</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'form_view_initial_mode': 'edit'}</field>
+    </record>
+
+</odoo>

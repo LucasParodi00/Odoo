@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Menú Principal -->
+    <menuitem id="menu_medical_management_root"
+              name="Gestión Médica"
+              web_icon="medical_management,static/description/icon.png"
+              sequence="10"/>
+
+    <!-- Menú de Configuración -->
+    <menuitem id="menu_medical_configuration"
+              name="Configuración"
+              parent="menu_medical_management_root"
+              sequence="100"/>
+
+    <!-- Sub-menú de Especialidades -->
+    <menuitem id="menu_medical_specialty"
+              name="Especialidades"
+              parent="menu_medical_configuration"
+              action="action_medical_specialty"
+              sequence="10"/>
+
+    <!-- Sub-menú de Agendas -->
+    <menuitem id="menu_medical_schedule"
+              name="Agendas"
+              parent="menu_medical_configuration"
+              action="action_medical_schedule"
+              sequence="20"/>
+
+    <!-- Menú de Médicos -->
+    <menuitem id="menu_medical_doctors"
+              name="Médicos"
+              parent="menu_medical_management_root"
+              action="action_medical_doctor"
+              sequence="10"/>
+
+    <!-- Menú de Pacientes -->
+    <menuitem id="menu_medical_patients"
+              name="Pacientes"
+              parent="menu_medical_management_root"
+              sequence="20"/>
+
+    <!-- Sub-menú de Pacientes Humanos -->
+    <menuitem id="menu_medical_patient_human"
+              name="Humanos"
+              parent="menu_medical_patients"
+              action="action_medical_patient_human"
+              sequence="10"/>
+
+    <!-- Sub-menú de Mascotas -->
+    <menuitem id="menu_medical_patient_pet"
+              name="Mascotas"
+              parent="menu_medical_patients"
+              action="action_medical_patient_pet"
+              sequence="20"/>
+
+</odoo>

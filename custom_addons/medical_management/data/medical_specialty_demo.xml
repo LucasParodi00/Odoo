@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Especialidades de demostración -->
+        <record id="specialty_general" model="medical.specialty">
+            <field name="name">Consulta General</field>
+            <field name="code">cg</field>
+            <field name="color">10</field>
+            <field name="active">True</field>
+        </record>
+
+        <record id="specialty_oftalmologia" model="medical.specialty">
+            <field name="name">Consulta Oftalmológica</field>
+            <field name="code">co</field>
+            <field name="color">1</field>
+            <field name="active">True</field>
+        </record>
+
+        <record id="specialty_cirugia" model="medical.specialty">
+            <field name="name">Cirugía</field>
+            <field name="code">ci</field>
+            <field name="color">3</field>
+            <field name="active">True</field>
+        </record>
+
+        <record id="specialty_pediatria" model="medical.specialty">
+            <field name="name">Pediatría</field>
+            <field name="code">pe</field>
+            <field name="color">5</field>
+            <field name="active">True</field>
+        </record>
+
+        <record id="specialty_cardiologia" model="medical.specialty">
+            <field name="name">Cardiología</field>
+            <field name="code">ca</field>
+            <field name="color">2</field>
+            <field name="active">True</field>
+        </record>
+
+        <record id="specialty_traumatologia" model="medical.specialty">
+            <field name="name">Traumatología</field>
+            <field name="code">tr</field>
+            <field name="color">8</field>
+            <field name="active">True</field>
+        </record>
+
+        <record id="specialty_dermatologia" model="medical.specialty">
+            <field name="name">Dermatología</field>
+            <field name="code">de</field>
+            <field name="color">6</field>
+            <field name="active">True</field>
+        </record>
+
+    </data>
+</odoo>

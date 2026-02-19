@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Vista Form heredada de res.partner para agregar campos de paciente -->
+    <record id="view_partner_form_patient" model="ir.ui.view">
+        <field name="name">res.partner.form.patient</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <!-- Agregar el campo "Es Paciente" después del campo "Es Médico" -->
+            <field name="is_doctor" position="after">
+                <field name="is_patient" widget="boolean_toggle"/>
+            </field>
+            
+            <!-- Agregar una pestaña con información del paciente -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Información del Paciente" invisible="not is_patient">
+                    <group>
+                        <group string="Datos Personales">
+                            <field name="patient_dni"/>
+                            <field name="patient_birthdate"/>
+                            <field name="patient_age" readonly="1"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Vista List específica para pacientes humanos -->
+    <record id="view_patient_human_list" model="ir.ui.view">
+        <field name="name">res.partner.patient.human.list</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <list string="Pacientes Humanos">
+                <field name="name"/>
+                <field name="patient_dni"/>
+                <field name="patient_birthdate"/>
+                <field name="patient_age"/>
+                <field name="phone" optional="show"/>
+                <field name="email" optional="show"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista Form específica para pacientes humanos -->
+    <record id="view_patient_human_form" model="ir.ui.view">
+        <field name="name">res.partner.patient.human.form</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="view_partner_form_patient"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <!-- Ocultar el campo "Es Paciente" en la vista específica de pacientes -->
+            <field name="is_patient" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+        </field>
+    </record>
+
+    <!-- Vista Search para pacientes humanos -->
+    <record id="view_patient_human_search" model="ir.ui.view">
+        <field name="name">res.partner.patient.human.search</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Pacientes">
+                <field name="name" string="Paciente" 
+                       filter_domain="['|', ('name', 'ilike', self), ('patient_dni', 'ilike', self)]"/>
+                <field name="patient_dni"/>
+                <field name="phone"/>
+                <field name="email"/>
+                <separator/>
+                <filter string="Activos" name="active" domain="[('is_patient', '=', True), ('active', '=', True)]"/>
+                <filter string="Inactivos" name="inactive" domain="[('is_patient', '=', True), ('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Vista Kanban para pacientes humanos -->
+    <record id="view_patient_human_kanban" model="ir.ui.view">
+        <field name="name">res.partner.patient.human.kanban</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <kanban string="Pacientes Humanos">
+                <field name="id"/>
+                <field name="name"/>
+                <field name="patient_dni"/>
+                <field name="patient_age"/>
+                <field name="phone"/>
+                <field name="email"/>
+                <field name="active"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_global_click">
+                            <div class="o_kanban_record_top">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title">
+                                        <field name="name"/>
+                                    </strong>
+                                    <div class="o_kanban_record_subtitle" t-if="record.patient_dni.raw_value">
+                                        DNI: <field name="patient_dni"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="o_kanban_record_body">
+                                <div t-if="record.patient_age.raw_value">
+                                    <i class="fa fa-birthday-cake" title="Edad"/> <field name="patient_age"/>
+                                </div>
+                                <div t-if="record.phone.raw_value">
+                                    <i class="fa fa-phone" title="Teléfono"/> <field name="phone"/>
+                                </div>
+                                <div t-if="record.email.raw_value">
+                                    <i class="fa fa-envelope" title="Email"/> <field name="email"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Acción para pacientes humanos -->
+    <record id="action_medical_patient_human" model="ir.actions.act_window">
+        <field name="name">Pacientes Humanos</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[('is_patient', '=', True)]</field>
+        <field name="context">{
+            'default_is_patient': True,
+            'search_default_active': 1,
+        }</field>
+        <field name="search_view_id" ref="view_patient_human_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crear un nuevo paciente
+            </p>
+            <p>
+                Los pacientes son contactos con información médica adicional.
+                Agregue su DNI, fecha de nacimiento y otros datos relevantes.
+            </p>
+        </field>
+    </record>
+
+    <!-- Vincular vistas específicas a la acción -->
+    <record id="action_medical_patient_human_view_kanban" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">kanban</field>
+        <field name="view_id" ref="view_patient_human_kanban"/>
+        <field name="act_window_id" ref="action_medical_patient_human"/>
+    </record>
+
+    <record id="action_medical_patient_human_view_list" model="ir.actions.act_window.view">
+        <field name="sequence" eval="2"/>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_patient_human_list"/>
+        <field name="act_window_id" ref="action_medical_patient_human"/>
+    </record>
+
+    <record id="action_medical_patient_human_view_form" model="ir.actions.act_window.view">
+        <field name="sequence" eval="3"/>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_patient_human_form"/>
+        <field name="act_window_id" ref="action_medical_patient_human"/>
+    </record>
+
+</odoo>

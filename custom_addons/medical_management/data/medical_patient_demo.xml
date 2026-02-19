@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Pacientes Humanos de demostración -->
+        <record id="patient_human_1" model="res.partner">
+            <field name="name">María Fernández</field>
+            <field name="is_patient">True</field>
+            <field name="patient_dni">33-12345678-9</field>
+            <field name="patient_birthdate">1990-05-15</field>
+            <field name="phone">+54 11 5678-1234</field>
+            <field name="email">mfernandez@email.com</field>
+        </record>
+
+        <record id="patient_human_2" model="res.partner">
+            <field name="name">Carlos Rodríguez</field>
+            <field name="is_patient">True</field>
+            <field name="patient_dni">28-23456789-0</field>
+            <field name="patient_birthdate">1985-08-22</field>
+            <field name="phone">+54 11 5678-1235</field>
+            <field name="email">crodriguez@email.com</field>
+        </record>
+
+        <record id="patient_human_3" model="res.partner">
+            <field name="name">Laura Gómez</field>
+            <field name="is_patient">True</field>
+            <field name="patient_dni">35-34567890-1</field>
+            <field name="patient_birthdate">1995-03-10</field>
+            <field name="phone">+54 11 5678-1236</field>
+            <field name="email">lgomez@email.com</field>
+        </record>
+
+        <record id="patient_human_4" model="res.partner">
+            <field name="name">Roberto Silva</field>
+            <field name="is_patient">True</field>
+            <field name="patient_dni">30-45678901-2</field>
+            <field name="patient_birthdate">1988-11-05</field>
+            <field name="phone">+54 11 5678-1237</field>
+            <field name="email">rsilva@email.com</field>
+        </record>
+
+        <record id="patient_human_5" model="res.partner">
+            <field name="name">Ana López</field>
+            <field name="is_patient">True</field>
+            <field name="patient_dni">32-56789012-3</field>
+            <field name="patient_birthdate">1992-07-18</field>
+            <field name="phone">+54 11 5678-1238</field>
+            <field name="email">alopez@email.com</field>
+        </record>
+
+        <!-- Mascotas de demostración -->
+        
+        <!-- Mascotas de María Fernández -->
+        <record id="pet_1" model="medical.patient.pet">
+            <field name="name">Max</field>
+            <field name="owner_id" ref="patient_human_1"/>
+            <field name="pet_type">dog</field>
+            <field name="breed">Labrador</field>
+            <field name="birthdate">2020-03-15</field>
+            <field name="color">Dorado</field>
+            <field name="notes">Muy juguetón y amigable. Le gusta nadar.</field>
+        </record>
+
+        <record id="pet_2" model="medical.patient.pet">
+            <field name="name">Luna</field>
+            <field name="owner_id" ref="patient_human_1"/>
+            <field name="pet_type">cat</field>
+            <field name="breed">Siamés</field>
+            <field name="birthdate">2019-07-22</field>
+            <field name="color">Crema con puntos marrones</field>
+            <field name="notes">Gata tranquila, prefiere estar en lugares altos.</field>
+        </record>
+
+        <!-- Mascota de Carlos Rodríguez -->
+        <record id="pet_3" model="medical.patient.pet">
+            <field name="name">Rocky</field>
+            <field name="owner_id" ref="patient_human_2"/>
+            <field name="pet_type">dog</field>
+            <field name="breed">Bulldog</field>
+            <field name="birthdate">2018-11-10</field>
+            <field name="color">Blanco y marrón</field>
+            <field name="notes">Perro guardián, muy leal a su dueño.</field>
+        </record>
+
+        <!-- Mascota de Laura Gómez -->
+        <record id="pet_4" model="medical.patient.pet">
+            <field name="name">Piolin</field>
+            <field name="owner_id" ref="patient_human_3"/>
+            <field name="pet_type">bird</field>
+            <field name="breed">Canario</field>
+            <field name="birthdate">2021-05-01</field>
+            <field name="color">Amarillo brillante</field>
+            <field name="notes">Canta todas las mañanas. Muy activo.</field>
+        </record>
+
+        <!-- Mascota de Roberto Silva -->
+        <record id="pet_5" model="medical.patient.pet">
+            <field name="name">Simba</field>
+            <field name="owner_id" ref="patient_human_4"/>
+            <field name="pet_type">cat</field>
+            <field name="breed">Persa</field>
+            <field name="birthdate">2019-02-14</field>
+            <field name="color">Naranja</field>
+            <field name="notes">Gato de pelo largo, requiere cepillado frecuente.</field>
+        </record>
+
+        <!-- Mascota de Ana López -->
+        <record id="pet_6" model="medical.patient.pet">
+            <field name="name">Coco</field>
+            <field name="owner_id" ref="patient_human_5"/>
+            <field name="pet_type">rabbit</field>
+            <field name="breed">Conejo Enano</field>
+            <field name="birthdate">2022-01-20</field>
+            <field name="color">Blanco con manchas grises</field>
+            <field name="notes">Muy dócil y sociable. Le encanta la zanahoria.</field>
+        </record>
+
+        <!-- Mascota adicional sin fecha de nacimiento -->
+        <record id="pet_7" model="medical.patient.pet">
+            <field name="name">Nemo</field>
+            <field name="owner_id" ref="patient_human_3"/>
+            <field name="pet_type">fish</field>
+            <field name="breed">Pez Payaso</field>
+            <field name="color">Naranja con blanco</field>
+            <field name="notes">Vive en acuario de agua salada.</field>
+        </record>
+
+    </data>
+</odoo>
